@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const [targetRows] = await p.execute(
       "SELECT " + q(C.rank) + " FROM " + t + " WHERE " + q(C.id) + " = ? LIMIT 1",
       [id]
-    );
+    ) as [any[], any];
 
     if (Array.isArray(targetRows) && targetRows.length > 0) {
       const targetRank = normalizeRank((targetRows[0] as any)[C.rank] || "Uye");

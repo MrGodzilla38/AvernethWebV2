@@ -294,7 +294,7 @@ export default function AuthPage() {
             <div>
               <h3 className="footer__heading">Hesap</h3>
               <p className="footer__text">
-                Bu sayfa, nLogin ile paylaşılan MySQL veritabanına BCrypt ile hashlenmiş şifre yazar. Güvenlik için API'yi HTTPS üzerinden yayınlayın ve JWT_SECRET değerini güçlü tutun.
+                Bu sayfa, nLogin ile paylaşılan MySQL veritabanına BCrypt ile hashlenmiş şifre yazar. Güvenlik için API&apos;yi HTTPS üzerinden yayınlayın ve JWT_SECRET değerini güçlü tutun.
               </p>
               <p className="footer__copy">AVERNETH. © {new Date().getFullYear()}</p>
             </div>
@@ -549,7 +549,7 @@ export default function AuthPage() {
           <div>
             <h3 className="footer__heading">Hesap</h3>
             <p className="footer__text">
-              Bu sayfa, nLogin ile paylaşılan MySQL veritabanına BCrypt ile hashlenmiş şifre yazar. Güvenlik için API'yi HTTPS üzerinden yayınlayın ve JWT_SECRET değerini güçlü tutun.
+              Bu sayfa, nLogin ile paylaşılan MySQL veritabanına BCrypt ile hashlenmiş şifre yazar. Güvenlik için API&apos;yi HTTPS üzerinden yayınlayın ve JWT_SECRET değerini güçlü tutun.
             </p>
             <p className="footer__copy">AVERNETH. © {new Date().getFullYear()}</p>
           </div>

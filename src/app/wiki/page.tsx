@@ -296,7 +296,7 @@ export default function WikiPage() {
               <input 
                 id="wiki-search" 
                 type="search" 
-                placeholder="Wiki'de ara..." 
+                placeholder="Wiki&apos;de ara..." 
                 autoComplete="off"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

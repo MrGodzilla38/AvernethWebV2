@@ -28,7 +28,7 @@ export async function verifyUser(req: NextRequest): Promise<{ success: boolean; 
     const [rows] = await p.execute(
       "SELECT " + q(C.rank) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
       [payload.sub]
-    );
+    ) as [any[], any];
 
     if (!rows.length) return { success: false, error: "Kullanıcı bulunamadı." };
 
@@ -61,8 +61,8 @@ export async function requireAdmin(req: NextRequest): Promise<{ success: boolean
 
 export function generateToken(username: string): string {
   const nameLower = username.toLowerCase();
-  return jwt.sign({ sub: nameLower, rn: username }, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_DAYS + "d",
+  return jwt.sign({ sub: nameLower, rn: username }, JWT_SECRET as string, {
+    expiresIn: `${JWT_EXPIRES_DAYS}d`,
   });
 }
 
@@ -86,4 +86,4 @@ export function clearAuthCookie(response: any) {
   });
 }
 
-export { BCRYPT_ROUNDS, JWT_SECRET, JWT_EXPIRES_DAYS };
+export { BCRYPT_ROUNDS, JWT_SECRET, JWT_EXPIRES_DAYS, normalizeRank };
