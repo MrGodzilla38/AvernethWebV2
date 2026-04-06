@@ -1,0 +1,367 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import './admin.css';
+
+export default function AdminPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('users');
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in and has admin privileges
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        if (data.ok && data.loggedIn) {
+          setIsLoggedIn(true);
+          setUser({ username: data.username, rank: data.rank });
+          
+          // Check if user has admin privileges
+          if (data.rank !== 'Admin' && data.rank !== 'Owner') {
+            window.location.href = '/'; // Redirect non-admin users
+            return;
+          }
+        } else {
+          window.location.href = '/auth'; // Redirect to login if not logged in
+          return;
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = '/auth';
+        return;
+      }
+      
+      // Load users data if authenticated as admin
+      await loadUsers();
+      setLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      const response = await fetch('/api/admin/users');
+      const data = await response.json();
+      if (data.ok) {
+        setUsers(data.users || []);
+      }
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    }
+  };
+
+  const copyIP = () => {
+    navigator.clipboard.writeText('play.averneth.net');
+    showToast('Sunucu IP kopyalandı!');
+  };
+
+  const showToast = (message: string) => {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toast.style.display = 'block';
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        <p>Yükleniyor...</p>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn || !user) {
+    return null; // Will redirect
+  }
+
+  return (
+    <>
+      <div className="noise" aria-hidden="true"></div>
+      <header className="topbar">
+        <div className="container topbar__inner">
+          <Link className="brand" href="/">
+            <Image className="brand__logo" src="/assets/averneth-logo.png" width={160} height={160} alt="" />
+            <span className="brand__text">Averneth</span>
+          </Link>
+          <nav className="nav" aria-label="Ana menü">
+            <button type="button" className="nav__toggle" aria-expanded="false" aria-controls="nav-menu">Menü</button>
+            <ul id="nav-menu" className="nav__list">
+              <li><Link className="nav__link" href="/">Ana Sayfa</Link></li>
+              <li><a className="nav__link" href="/#haberler">Haberler</a></li>
+              <li><a className="nav__link" href="/#magaza">Mağaza</a></li>
+              <li><a className="nav__link" href="/#forum">Forum</a></li>
+              <li><Link className="nav__link" href="/wiki">Wiki</Link></li>
+              <li><a className="nav__link" href="/#yardim">Yardım</a></li>
+              <li><a className="nav__link" href="/#destek">Destek</a></li>
+              <li><a className="nav__link" href="/#yetkili-basvuru">Yetkili Başvuru</a></li>
+            </ul>
+          </nav>
+          <div className="topbar__actions">
+            <div className="user-info">
+              <span>{user.username} ({user.rank})</span>
+            </div>
+            <button onClick={handleLogout} className="btn btn--ghost btn--sm">Çıkış Yap</button>
+          </div>
+        </div>
+      </header>
+
+      <main className="admin-main">
+        <div className="container admin-layout">
+          <aside className="admin-sidebar">
+            <nav className="admin-nav" aria-label="Admin navigasyonu">
+              <button 
+                type="button" 
+                className={`admin-nav__item ${activeTab === 'users' ? 'admin-nav__item--active' : ''}`}
+                onClick={() => setActiveTab('users')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                Kullanıcı Yönetimi
+              </button>
+              <button 
+                type="button" 
+                className={`admin-nav__item ${activeTab === 'store' ? 'admin-nav__item--active' : ''}`}
+                onClick={() => setActiveTab('store')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" strokeWidth="1.5"/>
+                  <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                Mağaza Düzenleme
+              </button>
+              <button 
+                type="button" 
+                className={`admin-nav__item ${activeTab === 'wiki' ? 'admin-nav__item--active' : ''}`}
+                onClick={() => setActiveTab('wiki')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Wiki Düzenleme
+              </button>
+              <button 
+                type="button" 
+                className={`admin-nav__item ${activeTab === 'server' ? 'admin-nav__item--active' : ''}`}
+                onClick={() => setActiveTab('server')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="2" y="3" width="20" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="2" y="9" width="20" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="2" y="15" width="20" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                </svg>
+                Sunucu Ayarları
+              </button>
+            </nav>
+          </aside>
+
+          <div className="admin-content">
+            {activeTab === 'users' && (
+              <section className="admin-section">
+                <div className="admin-section__header">
+                  <h2 className="admin-section__title">Kullanıcı Yönetimi</h2>
+                  <button className="btn btn--primary btn--sm">Yeni Kullanıcı Ekle</button>
+                </div>
+                
+                <div className="admin-filters">
+                  <input 
+                    type="search" 
+                    placeholder="Kullanıcı ara..." 
+                    className="admin-search"
+                  />
+                  <select className="admin-select">
+                    <option value="">Tüm Roller</option>
+                    <option value="player">Oyuncu</option>
+                    <option value="vip">VIP</option>
+                    <option value="mod">Moderatör</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+
+                <div className="table-responsive">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Kullanıcı Adı</th>
+                        <th>E-posta</th>
+                        <th>Rol</th>
+                        <th>Kayıt Tarihi</th>
+                        <th>Son Giriş</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="empty-table">Kullanıcı bulunamadı.</td>
+                        </tr>
+                      ) : (
+                        users.map((user) => (
+                          <tr key={user.id}>
+                            <td>{user.id}</td>
+                            <td className="user-cell">
+                              <div className="user-avatar">
+                                <Image src="/averneth-logo.png" alt="" width={32} height={32} />
+                              </div>
+                              {user.username}
+                            </td>
+                            <td>{user.email || '-'}</td>
+                            <td>
+                              <span className={`badge badge--${user.rank.toLowerCase()}`}>
+                                {user.rank}
+                              </span>
+                            </td>
+                            <td>{user.registeredAt || '-'}</td>
+                            <td>{user.lastLogin || '-'}</td>
+                            <td>
+                              <span className={`status status--${user.online ? 'online' : 'offline'}`}>
+                                {user.online ? 'Çevrimiçi' : 'Çevrimdışı'}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="admin-actions">
+                                <button className="btn btn--ghost btn--xs" title="Düzenle">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="1.5"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5"/>
+                                  </svg>
+                                </button>
+                                <button className="btn btn--ghost btn--xs" title="Sil">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="1.5"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="1.5"/>
+                                  </svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'store' && (
+              <section className="admin-section">
+                <div className="admin-section__header">
+                  <h2 className="admin-section__title">Mağaza Düzenleme</h2>
+                  <button className="btn btn--primary btn--sm">Yeni Ürün Ekle</button>
+                </div>
+                
+                <div className="empty-state">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" strokeWidth="1.5"/>
+                    <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  <p>Mağaza yönetimi yakında eklenecek.</p>
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'wiki' && (
+              <section className="admin-section">
+                <div className="admin-section__header">
+                  <h2 className="admin-section__title">Wiki Düzenleme</h2>
+                  <button className="btn btn--primary btn--sm">Yeni Sayfa Ekle</button>
+                </div>
+                
+                <div className="empty-state">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <p>Wiki yönetimi yakında eklenecek.</p>
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'server' && (
+              <section className="admin-section">
+                <div className="admin-section__header">
+                  <h2 className="admin-section__title">Sunucu Ayarları</h2>
+                  <button className="btn btn--success btn--sm">Kaydet</button>
+                </div>
+                
+                <div className="admin-form">
+                  <div className="form-group">
+                    <label>Sunucu IP</label>
+                    <input type="text" defaultValue="play.averneth.net" className="form-input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Sunucu Port</label>
+                    <input type="text" defaultValue="25565" className="form-input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Maksimum Oyuncu Sayısı</label>
+                    <input type="number" defaultValue="100" className="form-input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Motd Mesajı</label>
+                    <textarea className="form-textarea" defaultValue="§6§lAVERNETH §7- §fMinecraft RPG Sunucusu"></textarea>
+                  </div>
+                  <div className="form-group">
+                    <label>
+                      <input type="checkbox" defaultChecked />
+                      Sunucu çevrimiçi
+                    </label>
+                  </div>
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
+      </main>
+
+      <footer className="footer">
+        <div className="container footer__grid">
+          <div>
+            <h3 className="footer__heading">Admin Paneli</h3>
+            <p className="footer__text">
+              AVERNETH sunucu yönetim paneli. Sadece yetkili kullanıcılar erişebilir.
+            </p>
+            <p className="footer__copy">AVERNETH. © {new Date().getFullYear()}</p>
+          </div>
+          <div>
+            <h3 className="footer__heading">Hızlı menü</h3>
+            <ul className="footer__links">
+              <li><Link href="/">Ana Sayfa</Link></li>
+              <li><Link href="/wiki">Wiki</Link></li>
+              <li><a href="/#destek">Destek</a></li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+
+      <div className="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    </>
+  );
+}
