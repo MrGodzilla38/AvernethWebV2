@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Averneth Web Deployment Script
+# AvernethWebV2 Deployment Script
 # This script deploys the application to the production server
 
 set -e  # Exit on any error
@@ -8,10 +8,10 @@ set -e  # Exit on any error
 # Configuration
 SERVER_HOST="your-server-ip"
 SERVER_USER="root"
-SERVER_PATH="/var/www/averneth-web"
+SERVER_PATH="/var/www/AvernethWebV2"
 LOCAL_PATH="$(pwd)"
 
-echo "🚀 Starting Averneth Web deployment..."
+echo "🚀 Starting AvernethWebV2 deployment..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -85,7 +85,7 @@ ssh $SERVER_USER@$SERVER_HOST "cd $SERVER_PATH && npm run build:prod"
 
 # Restart application with PM2
 print_status "Restarting application..."
-ssh $SERVER_USER@$SERVER_HOST "cd $SERVER_PATH && pm2 restart averneth-web || pm2 start ecosystem.config.js"
+ssh $SERVER_USER@$SERVER_HOST "cd $SERVER_PATH && pm2 restart AvernethWebV2 || pm2 start ecosystem.config.js"
 
 # Save PM2 configuration
 ssh $SERVER_USER@$SERVER_HOST "pm2 save"
@@ -99,10 +99,10 @@ if curl -f http://$SERVER_HOST:3000 > /dev/null 2>&1; then
     print_status "Application is running at: http://$SERVER_HOST:3000"
 else
     print_error "❌ Health check failed. Application may not be running properly."
-    print_error "Please check the logs on the server: pm2 logs averneth-web"
+    print_error "Please check the logs on the server: pm2 logs AvernethWebV2"
     exit 1
 fi
 
-print_status "🎉 Averneth Web deployment completed!"
-print_status "To view logs: ssh $SERVER_USER@$SERVER_HOST 'pm2 logs averneth-web'"
+print_status "🎉 AvernethWebV2 deployment completed!"
+print_status "To view logs: ssh $SERVER_USER@$SERVER_HOST 'pm2 logs AvernethWebV2'"
 print_status "To manage: ssh $SERVER_USER@$SERVER_HOST 'pm2 list'"

@@ -1,10 +1,10 @@
 module.exports = {
   apps: [
     {
-      name: 'averneth-web',
+      name: 'AvernethWebV2',
       script: 'npm',
       args: 'run start:prod',
-      cwd: '/var/www/averneth-web',
+      cwd: '/var/www/AvernethWebV2',
       instances: 'max',
       exec_mode: 'cluster',
       env: {
@@ -15,9 +15,9 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3000
       },
-      error_file: '/var/log/averneth-web-error.log',
-      out_file: '/var/log/averneth-web-out.log',
-      log_file: '/var/log/averneth-web.log',
+      error_file: '/var/log/AvernethWebV2-error.log',
+      out_file: '/var/log/AvernethWebV2-out.log',
+      log_file: '/var/log/AvernethWebV2.log',
       time: true,
       autorestart: true,
       max_restarts: 10,

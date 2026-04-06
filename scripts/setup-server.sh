@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Server Setup Script for Averneth Web
+# Server Setup Script for AvernethWebV2
 # Run this script on the server to prepare it for deployment
 
 set -e
 
-echo "🔧 Setting up server for Averneth Web deployment..."
+echo "🔧 Setting up server for AvernethWebV2 deployment..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -62,12 +62,12 @@ fi
 
 # Create deployment directory
 print_status "Creating deployment directory..."
-mkdir -p /var/www/averneth-web
-chown -R $SUDO_USER:$SUDO_USER /var/www/averneth-web
+mkdir -p /var/www/AvernethWebV2
+chown -R $SUDO_USER:$SUDO_USER /var/www/AvernethWebV2
 
 # Setup Nginx configuration
 print_status "Setting up Nginx configuration..."
-cat > /etc/nginx/sites-available/averneth-web << 'EOF'
+cat > /etc/nginx/sites-available/AvernethWebV2 << 'EOF'
 server {
     listen 80;
     server_name _;
@@ -100,7 +100,7 @@ server {
 
     # Static files
     location /_next/static/ {
-        alias /var/www/averneth-web/.next/static/;
+        alias /var/www/AvernethWebV2/.next/static/;
         expires 365d;
         add_header Cache-Control "public, immutable";
     }
@@ -108,7 +108,7 @@ server {
 EOF
 
 # Enable the site
-ln -sf /etc/nginx/sites-available/averneth-web /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/AvernethWebV2 /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 # Test Nginx configuration
@@ -163,4 +163,4 @@ print_status "1. Deploy the application using: ./scripts/deploy.sh"
 print_status "2. Configure your domain name in Nginx configuration"
 print_status "3. Set up SSL certificate with: certbot --nginx -d your-domain.com"
 print_status ""
-print_status "Server is ready for Averneth Web deployment!"
+print_status "Server is ready for AvernethWebV2 deployment!"

@@ -1,9 +1,9 @@
-# Averneth Web Deployment Guide
+# AvernethWebV2 Deployment Guide
 
 ## Server Structure
 - **API Server**: `/opt/averneth-api/` (Node.js/Express on port 3001)
 - **Web Frontend**: `/var/www/averneth/` (Static files)
-- **New Next.js App**: `/var/www/averneth-web/` (This project)
+- **New Next.js App**: `/var/www/AvernethWebV2/` (This project)
 
 ## Prerequisites
 ```bash
@@ -23,14 +23,14 @@ sudo apt install nginx
 
 ### 1. Upload Project Files
 ```bash
-# Upload your averneth-web project to /var/www/
+# Upload your AvernethWebV2 project to /var/www/
 cd /var/www/
-# Upload your project here (should create /var/www/averneth-web/)
+# Upload your project here (should create /var/www/AvernethWebV2/)
 ```
 
 ### 2. Install Dependencies
 ```bash
-cd /var/www/averneth-web
+cd /var/www/AvernethWebV2
 npm install --production
 ```
 
@@ -62,7 +62,7 @@ sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -
 ```
 
 ### 6. Configure Nginx
-Create Nginx configuration: `/etc/nginx/sites-available/averneth-web`
+Create Nginx configuration: `/etc/nginx/sites-available/AvernethWebV2`
 
 ```nginx
 server {
@@ -97,7 +97,7 @@ server {
 
     # Static files
     location /_next/static/ {
-        alias /var/www/averneth-web/.next/static/;
+        alias /var/www/AvernethWebV2/.next/static/;
         expires 365d;
         add_header Cache-Control "public, immutable";
     }
@@ -106,7 +106,7 @@ server {
 
 Enable the site:
 ```bash
-sudo ln -s /etc/nginx/sites-available/averneth-web /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/AvernethWebV2 /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -119,13 +119,13 @@ sudo systemctl reload nginx
 pm2 list
 
 # View logs
-pm2 logs averneth-web
+pm2 logs AvernethWebV2
 
 # Restart application
-pm2 restart averneth-web
+pm2 restart AvernethWebV2
 
 # Stop application
-pm2 stop averneth-web
+pm2 stop AvernethWebV2
 
 # Monitor application
 pm2 monit
@@ -133,11 +133,11 @@ pm2 monit
 
 ### Update Deployment
 ```bash
-cd /var/www/averneth-web
+cd /var/www/AvernethWebV2
 git pull origin main  # or upload new files
 npm install --production
 npm run build:prod
-pm2 restart averneth-web
+pm2 restart AvernethWebV2
 ```
 
 ## Environment Variables
@@ -154,7 +154,7 @@ The application uses these key environment variables (configured in `.env.produc
 ### Check Application Status
 ```bash
 pm2 status
-pm2 logs averneth-web --lines 50
+pm2 logs AvernethWebV2 --lines 50
 ```
 
 ### Check Nginx Configuration

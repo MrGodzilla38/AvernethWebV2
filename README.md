@@ -1,4 +1,4 @@
-# Averneth Web
+# AvernethWebV2
 
 Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama ve kullanıcı yönetimi ile.
 
@@ -24,8 +24,8 @@ Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama 
 
 1. **Repository'i klonlayın**
 ```bash
-git clone https://github.com/kullanici-adiniz/averneth-web.git
-cd averneth-web
+git clone https://github.com/kullanici-adiniz/AvernethWebV2.git
+cd AvernethWebV2
 ```
 
 2. **Bağımlılıkları yükleyin**
@@ -106,12 +106,12 @@ Bu repository'de GitHub Actions ile otomatik deployment bulunur. GitHub reposito
 - `SERVER_HOST`: Sunucu IP/adresiniz
 - `SERVER_USER`: SSH kullanıcı adı  
 - `SERVER_KEY`: SSH private key
-- `SERVER_PATH`: Deployment yolu (örn: `/var/www/averneth-web`)
+- `SERVER_PATH`: Deployment yolu (örn: `/var/www/AvernethWebV2`)
 
 ## 📁 Proje Yapısı
 
 ```
-averneth-web/
+AvernethWebV2/
 ├── src/
 │   ├── app/              # Next.js App Router sayfaları
 │   ├── lib/              # Yardımcı fonksiyonlar ve veritabanı bağlantısı
@@ -195,22 +195,6 @@ Tailwind CSS ile aşağıdaki cihazlarda çalışan responsive tasarım:
 3. Değişikliklerinizi commit edin (`git commit -m 'Yeni özellik ekle'`)
 4. Branch'e push edin (`git push origin feature/yeni-ozellik`)
 5. Pull Request oluşturun
-
-## 📄 Lisans
-
-Bu proje MIT Lisansı altında lisanslanmıştır - detaylar için [LICENSE](LICENSE) dosyasını inceleyin.
-
-## 🆘 Destek
-
-Destek ve sorular için:
-- Bu repository'de issue oluşturun
-- Deployment sorunları için [DEPLOYMENT.md](DEPLOYMENT.md) dosyasını kontrol edin
-- Ortam değişkenleri yapılandırmasını gözden geçirin
-
-## 🔗 İlgili Projeler
-
-- **[averneth-api](https://github.com/kullanici-adiniz/averneth-api)** - Backend API sunucusu
-- **[nLogin](https://github.com/kullanici-adiniz/nlogin)** - Kimlik doğrulama eklentisi
 
 ---
 
