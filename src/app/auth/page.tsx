@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import './auth.css';
 
-export default function AuthPage() {
+function AuthPageContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -566,5 +566,13 @@ export default function AuthPage() {
 
       <div className="toast" id="toast" role="status" aria-live="polite" hidden></div>
     </>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthPageContent />
+    </Suspense>
   );
 }

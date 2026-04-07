@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build:prod": "NODE_ENV=production next build",
-    "start:prod": "NODE_ENV=production next start",
+    "build:prod": "set NODE_ENV=production&& next build",
+    "start:prod": "set NODE_ENV=production&& next start",
     "deploy": "npm run build:prod && npm run start:prod"
   },
   "dependencies": {
@@ -18,18 +18,19 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.9.7",
     "next": "14.2.5",
+    "postcss": "^8.5.8",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
-    "postcss": "^8.5.8",
-    "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
 }

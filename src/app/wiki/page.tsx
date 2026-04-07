@@ -292,7 +292,7 @@ export default function WikiPage() {
                 <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.6"/>
                 <path d="M20 20l-4.3-4.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
               </svg>
-              <label className="visually-hidden" htmlFor="wiki-search">Wiki'de ara</label>
+              <label className="visually-hidden" htmlFor="wiki-search">Wiki&apos;de ara</label>
               <input 
                 id="wiki-search" 
                 type="search" 
