@@ -23,7 +23,7 @@ jobs:
       run: npm ci --only=production
       
     - name: Build application
-      run: npm run build:prod
+      run: npm run build:prod:linux
       env:
         NODE_ENV: production
         
@@ -54,7 +54,7 @@ jobs:
         ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.SERVER_PATH }} && npm install --production"
         
         # Build on server
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.SERVER_PATH }} && npm run build:prod"
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.SERVER_PATH }} && npm run build:prod:linux"
         
         # Restart application with PM2
         ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.SERVER_PATH }} && pm2 restart AvernethWebV2 || pm2 start ecosystem.config.js"
