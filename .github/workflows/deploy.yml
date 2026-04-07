@@ -42,19 +42,15 @@ jobs:
         # Create deployment directory if it doesn't exist
         ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{ secrets.SERVER_PATH }}"
         
-        # Sync files to server
+        # Sync build output to server
         rsync -avz --delete \
           --exclude='.git*' \
           --exclude='node_modules' \
-          --exclude='.next' \
           --exclude='*.log' \
-          ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PATH }}/
+          .next/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PATH }}/
           
-        # Install dependencies on server
+        # Install production dependencies on server
         ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.SERVER_PATH }} && npm install --production"
-        
-        # Build on server
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.SERVER_PATH }} && npm run build:prod:linux"
         
         # Restart application with PM2
         ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.SERVER_PATH }} && pm2 restart AvernethWebV2 || pm2 start ecosystem.config.js"
