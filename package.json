@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "build:prod": "set NODE_ENV=production&& next build",
+    "build:prod:linux": "NODE_ENV=production next build",
     "start:prod": "set NODE_ENV=production&& next start",
     "deploy": "npm run build:prod && npm run start:prod"
   },
