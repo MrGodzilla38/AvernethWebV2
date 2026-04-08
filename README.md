@@ -12,52 +12,257 @@ Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama 
 - **Responsive Tasarım**
 - **Production Ready** PM2 desteği ile
 
-## 📋 Gereksinimler
+## 📋 Sistem Gereksinimleri
 
-- Node.js 18+
-- MySQL veritabanı nLogin tablosu ile
-- npm veya yarn
+### Minimum Sistem Gereksinimleri
+- **İşletim Sistemi**: Windows 10+, macOS 10.15+, Ubuntu 18.04+ veya benzeri Linux dağıtımları
+- **Node.js**: Sürüm 18.0 veya üstü (LTS sürümü önerilir)
+- **npm**: Sürüm 8.0 veya üstü (Node.js ile birlikte gelir)
+- **MySQL**: Sürüm 5.7+ veya 8.0+
+- **RAM**: Minimum 2GB, önerilen 4GB+
+- **Depolama**: Minimum 1GB boş alan
+
+### Geliştirme Ortamı Gereksinimleri
+- **VS Code** veya tercih edilen kod editörü
+- **Git** sürüm kontrol sistemi
+- **MySQL Command Line Client** veya **phpMyAdmin** gibi veritabanı yönetim aracı
+
+### Opsiyonel Araçlar
+- **PM2**: Production sunucu yönetimi için
+- **Docker**: Konteynerize deployment için
 
 ## 🛠️ Kurulum
 
-### Local Geliştirme
+### Adım 1: Node.js Kurulumu
 
-1. **Repository'i klonlayın**
+**Windows için:**
+1. [Node.js resmi sitesinden](https://nodejs.org/) LTS sürümünü indirin
+2. Installer'ı çalıştırın ve "Add to PATH" seçeneğini işaretlediğinizden emin olun
+3. Kurulumu tamamladıktan sonra komut istemini açın ve doğrulayın:
 ```bash
-git clone https://github.com/kullanici-adiniz/AvernethWebV2.git
+node --version
+npm --version
+```
+
+**macOS için:**
+```bash
+# Homebrew ile
+brew install node
+
+# Veya doğrudan indirme
+# https://nodejs.org/
+```
+
+**Linux (Ubuntu/Debian) için:**
+```bash
+# NodeSource repository ekleyin
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Doğrulama
+node --version
+npm --version
+```
+
+### Adım 2: MySQL Veritabanı Kurulumu
+
+**Windows için:**
+1. [MySQL Community Server](https://dev.mysql.com/downloads/mysql/) indirin
+2. Installer'ı çalıştırın ve "Developer Default" seçeneğini seçin
+3. Root şifresini belirleyin ve güvenli bir yere kaydedin
+4. MySQL Command Line Client'ı kurduğunuzdan emin olun
+
+**macOS için:**
+```bash
+# Homebrew ile
+brew install mysql
+brew services start mysql
+
+# Güvenlik kurulumu
+mysql_secure_installation
+```
+
+**Linux (Ubuntu/Debian) için:**
+```bash
+sudo apt update
+sudo apt install mysql-server mysql-client
+sudo mysql_secure_installation
+sudo systemctl start mysql
+sudo systemctl enable mysql
+```
+
+### Adım 3: Veritabanı ve Tablo Oluşturma
+
+1. **MySQL'e root kullanıcı olarak giriş yapın:**
+```bash
+mysql -u root -p
+# Şifrenizi girin
+```
+
+2. **Veritabanı oluşturun:**
+```sql
+CREATE DATABASE nLogin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+SHOW DATABASES;
+```
+
+3. **Kullanıcı oluşturun (opsiyonel ama önerilir):**
+```sql
+CREATE USER 'averneth'@'localhost' IDENTIFIED BY 'guvenli_sifre';
+GRANT ALL PRIVILEGES ON nLogin.* TO 'averneth'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+4. **nLogin tablosunu oluşturun:**
+```sql
+USE nLogin;
+
+CREATE TABLE nlogin (
+  ai INT AUTO_INCREMENT PRIMARY KEY,
+  last_name VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  last_ip VARCHAR(45),
+  last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  email VARCHAR(255),
+  rank INT DEFAULT 0,
+  balance DECIMAL(10,2) DEFAULT 0.00,
+  INDEX idx_username (last_name),
+  INDEX idx_email (email),
+  INDEX idx_last_seen (last_seen)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+# Tabloyu kontrol edin
+DESCRIBE nlogin;
+```
+
+5. **MySQL'den çıkış yapın:**
+```sql
+EXIT;
+```
+
+### Adım 4: Proje Kurulumu
+
+1. **Repository'i klonlayın:**
+```bash
+git clone https://github.com/MrGodzilla38/AvernethWebV2.git
 cd AvernethWebV2
 ```
 
-2. **Bağımlılıkları yükleyin**
+2. **Proje dizinini kontrol edin:**
 ```bash
-npm install
+ls -la
+# README.md, package.json, src/ klasörünü görmelisiniz
 ```
 
-3. **Ortam değişkenlerini ayarlayın**
+3. **Bağımlılıkları yükleyin:**
+```bash
+# npm ile
+npm install
+
+# Veya yarn ile (eğer kuruluysa)
+yarn install
+```
+
+4. **Kurulumu doğrulayın:**
+```bash
+# node_modules klasörünün oluştuğunu kontrol edin
+ls node_modules
+
+# Package versiyonlarını kontrol edin
+npm list --depth=0
+```
+
+### Adım 5: Ortam Değişkenleri Yapılandırması
+
+1. **Ortam değişkenleri şablonunu kopyalayın:**
 ```bash
 cp .env.local.example .env.local
 ```
 
-`.env.local` dosyasını veritabanı yapılandırmanızla düzenleyin:
-```env
-MYSQL_HOST=127.0.0.1
-MYSQL_PORT=3306
-MYSQL_USER=root
-MYSQL_PASSWORD=sifreniz
-MYSQL_DATABASE=nLogin
-JWT_SECRET=gizli-jwt-anahtariniz
+2. **.env.local dosyasını düzenleyin:**
+```bash
+# Windows (Notepad ile)
+notepad .env.local
+
+# macOS/Linux (nano ile)
+nano .env.local
 ```
 
-4. **Geliştirme sunucusunu çalıştırın**
+3. **Aşağıdaki yapılandırmayı ekleyin:**
+```env
+# MySQL Veritabanı Ayarları
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root              # Veya oluşturduğunuz kullanıcı adı
+MYSQL_PASSWORD=sifreniz       # MySQL şifreniz
+MYSQL_DATABASE=nLogin
+
+# JWT Ayarları
+JWT_SECRET=en_az_32_karakter_gizli_jwt_anahtariniz_buraya
+JWT_EXPIRES_DAYS=7
+
+# Şifreleme Ayarları
+BCRYPT_ROUNDS=10
+
+# Tablo Kolon Eşleştirmesi (nLogin tablosu için)
+NLOGIN_TABLE=nlogin
+NLOGIN_COL_ID=ai
+NLOGIN_COL_NAME=last_name
+NLOGIN_COL_PASSWORD=password
+NLOGIN_COL_ADDRESS=last_ip
+NLOGIN_COL_LASTLOGIN=last_seen
+NLOGIN_COL_EMAIL=email
+NLOGIN_COL_RANK=rank
+NLOGIN_COL_BALANCE=balance
+
+# Development Ayarları
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+```
+
+4. **Güvenlik uyarısı:** `.env.local` dosyasını asla GitHub'a yüklemeyin! Bu dosya otomatik olarak .gitignore ile dışlanmıştır.
+
+### Adım 6: Veritabanı Bağlantısı Testi
+
+1. **Veritabanı bağlantısını test etmek için:**
+```bash
+# MySQL'e bağlanmayı deneyin
+mysql -h 127.0.0.1 -P 3306 -u root -p nLogin
+# Şifrenizi girin ve "Welcome to the MySQL monitor" mesajını görün
+```
+
+2. **Tablo varlığını kontrol edin:**
+```sql
+USE nLogin;
+SHOW TABLES;
+DESCRIBE nlogin;
+EXIT;
+```
+
+### Adım 7: Uygulamayı Çalıştırma
+
+1. **Geliştirme sunucusunu başlatın:**
 ```bash
 npm run dev
 ```
 
-Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresini açın.
+2. **Sunucu başlangıcını kontrol edin:**
+```
+- ready started server on 0.0.0.0:3000, url: http://localhost:3000
+```
+
+3. **Tarayıcıda açın:**
+   - Adres: [http://localhost:3000](http://localhost:3000)
+   - Sayfanın düzgün yüklendiğini doğrulayın
+
+4. **Hata kontrolü:**
+   - Konsolda hata mesajı olup olmadığını kontrol edin
+   - Veritabanı bağlantı hatası alırsanız, .env.local ayarlarınızı kontrol edin
 
 ## 🗄️ Veritabanı Kurulumu
 
-Uygulama aşağıdaki tablo yapısına sahip bir MySQL veritabanı bekler:
+### Tablo Yapısı
+
+Uygulama aşağıdaki optimize edilmiş tablo yapısına sahip bir MySQL veritabanı bekler:
 
 ```sql
 CREATE TABLE nlogin (
@@ -65,11 +270,44 @@ CREATE TABLE nlogin (
   last_name VARCHAR(255) NOT NULL,
   password VARCHAR(255) NOT NULL,
   last_ip VARCHAR(45),
-  last_seen TIMESTAMP,
+  last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   email VARCHAR(255),
   rank INT DEFAULT 0,
-  balance DECIMAL(10,2) DEFAULT 0.00
-);
+  balance DECIMAL(10,2) DEFAULT 0.00,
+  INDEX idx_username (last_name),
+  INDEX idx_email (email),
+  INDEX idx_last_seen (last_seen)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+### Veritabanı Optimizasyonu
+
+**Performans için ek indeksler:**
+```sql
+-- Sık kullanılan sorgular için ek indeksler
+CREATE INDEX idx_rank_balance ON nlogin(rank, balance);
+CREATE INDEX idx_last_login_ip ON nlogin(last_seen, last_ip);
+```
+
+**Örnek veri ekleme (test için):**
+```sql
+INSERT INTO nlogin (last_name, password, email, rank, balance) VALUES 
+('testuser1', '$2b$10$hashed_password_here', 'user1@example.com', 1, 100.00),
+('testuser2', '$2b$10$another_hashed_password', 'user2@example.com', 0, 50.00);
+```
+
+### Veritabanı Bakımı
+
+**Regülar bakım komutları:**
+```sql
+-- Tablo optimizasyonu
+OPTIMIZE TABLE nlogin;
+
+-- İstatistikleri güncelle
+ANALYZE TABLE nlogin;
+
+-- Tablo kontrolü
+CHECK TABLE nlogin;
 ```
 
 ## 🚀 Deployment
@@ -195,6 +433,126 @@ Tailwind CSS ile aşağıdaki cihazlarda çalışan responsive tasarım:
 3. Değişikliklerinizi commit edin (`git commit -m 'Yeni özellik ekle'`)
 4. Branch'e push edin (`git push origin feature/yeni-ozellik`)
 5. Pull Request oluşturun
+
+## 🔧 Sorun Giderme
+
+### Yaygın Kurulum Sorunları
+
+**❌ "node: command not found" Hatası**
+```bash
+# Çözüm: Node.js PATH'e eklenmemiş
+# Windows: Node.js'i yeniden kurun ve "Add to PATH" seçeneğini işaretleyin
+# macOS/Linux: ~/.bashrc veya ~/.zshrc dosyasına ekleyin
+echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**❌ "Access denied for user 'root'@'localhost'" Hatası**
+```bash
+# Çözüm 1: MySQL şifresini sıfırla
+sudo mysql_secure_installation
+
+# Çözüm 2: MySQL servisini yeniden başlat
+# Windows: Services'de MySQL servisini yeniden başlat
+# Linux: sudo systemctl restart mysql
+# macOS: brew services restart mysql
+```
+
+**❌ "Can't connect to MySQL server" Hatası**
+```bash
+# MySQL servisinin çalıştığını kontrol et
+# Windows: net start mysql
+# Linux: sudo systemctl status mysql
+# macOS: brew services list | grep mysql
+
+# MySQL portunu kontrol et
+netstat -an | grep 3306
+```
+
+**❌ "npm install fails with permissions" Hatası**
+```bash
+# Çözüm 1: npm cache temizle
+npm cache clean --force
+
+# Çözüm 2: Global modüller için doğru izinler (Linux/macOS)
+sudo chown -R $(whoami) ~/.npm
+sudo chown -R $(whoami) /usr/local/lib/node_modules
+
+# Çözüm 3: npx kullan
+npx npm install
+```
+
+**❌ "Port 3000 already in use" Hatası**
+```bash
+# Port kullanan process'i bul
+netstat -tulpn | grep :3000
+# Windows: netstat -ano | findstr :3000
+
+# Process'i sonlandır
+# Linux/macOS: kill -9 <PID>
+# Windows: taskkill /PID <PID> /F
+
+# Veya farklı port kullan
+npm run dev -- -p 3001
+```
+
+**❌ "Database connection failed" Hatası**
+```bash
+# Kontrol listesi:
+# 1. MySQL servisinin çalıştığından emin olun
+# 2. .env.local dosyasındaki bilgilerin doğru olduğundan emin olun
+# 3. Veritabanı ve tablonun oluşturulduğundan emin olun
+# 4. MySQL kullanıcısının yetkilerinin olduğundan emin olun
+
+# Test için manuel bağlantı
+mysql -h 127.0.0.1 -P 3306 -u root -p nLogin
+```
+
+### Geliştirme Sorunları
+
+**❌ Hot reload çalışmıyor**
+```bash
+# Node.js sürümünü kontrol et
+node --version
+
+# Next.js cache temizle
+rm -rf .next
+npm run dev
+```
+
+**❌ CSS stilleri yüklenmiyor**
+```bash
+# Tailwind CSS kurulumunu kontrol et
+npm list tailwindcss
+
+# Config dosyasını kontrol et
+cat tailwind.config.js
+```
+
+### Log Kontrolü
+
+**Uygulama loglarını kontrol et:**
+```bash
+# Development logları
+tail -f .next/server.log
+
+# PM2 logları (production için)
+pm2 logs
+
+# MySQL logları
+# Linux: sudo tail -f /var/log/mysql/error.log
+# Windows: MySQL data dizinindeki .log dosyaları
+```
+
+### Yardım İçin
+
+Eğer yukarıdaki çözümler sorununuzu çözmezse:
+1. **GitHub Issues**: [Proje Issues Sayfası](https://github.com/MrGodzilla38/AvernethWebV2/issues)
+2. **Hata raporu gönderirken şunları ekleyin:**
+   - İşletim sistemi ve sürümü
+   - Node.js ve MySQL sürümleri
+   - Tam hata mesajı
+   - .env.local dosyasındaki hassas bilgileri kaldırarak yapılandırma
 
 ---
 
