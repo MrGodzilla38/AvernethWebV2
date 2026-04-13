@@ -7,6 +7,7 @@ import Image from 'next/image';
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [headerAvatarUrl, setHeaderAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve');
 
   useEffect(() => {
     // Check if user is logged in
@@ -17,6 +18,14 @@ export default function Home() {
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
           setUsername(data.username);
+          setHeaderAvatarUrl(`https://mc-heads.net/avatar/${data.username}/40`);
+//      try {
+//        const res = await fetch(`https://api.mojang.com/users/profiles/minecraft/${data.username}`);
+//        if (res.ok) {
+//          const mojang = await res.json();
+//          if (mojang?.id) setHeaderAvatarUrl(`https://minotar.net/avatar/${mojang.id}/40`);
+//        }
+//      } catch (_) {}
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -81,7 +90,15 @@ export default function Home() {
             </button>
             {isLoggedIn ? (
               <Link href="/auth" className="header-profile" title="Hesabım">
-                <Image src="/assets/averneth-logo.png" alt="Profil" className="header-profile__img" width={40} height={40} />
+                <img
+                  src={headerAvatarUrl}
+                  alt="Profil"
+                  className="header-profile__img"
+                  width={40}
+                  height={40}
+                  style={{ imageRendering: 'pixelated' }}
+                  onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve'; }}
+                />
               </Link>
             ) : (
               <>

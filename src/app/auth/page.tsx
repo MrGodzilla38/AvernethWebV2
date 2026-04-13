@@ -9,6 +9,7 @@ import './auth.css';
 function AuthPageContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [avatarUrl, setAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=80&default=MHF_Steve');
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [registerForm, setRegisterForm] = useState({ username: '', password: '', confirmPassword: '', email: '' });
   const [loginMessage, setLoginMessage] = useState('');
@@ -28,6 +29,7 @@ function AuthPageContent() {
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
           setUser({ username: data.username, rank: data.rank });
+          loadMinecraftAvatar(data.username);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -44,6 +46,28 @@ function AuthPageContent() {
       }
     }
   }, [searchParams]);
+
+const loadMinecraftAvatar = (username: string) => {
+  setAvatarUrl(`https://mc-heads.net/avatar/${username}/80`);
+};
+  
+//const loadMinecraftAvatar = async (username: string) => {
+//  try {
+//    const res = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+//    if (res.ok) {
+//      const data = await res.json();
+//      if (data?.id) {
+//        setAvatarUrl(`https://minotar.net/avatar/${data.id}/80`);
+//       return;
+//      }
+//    }
+//  } catch (_) {}
+//  setAvatarUrl(`https://minotar.net/avatar/MHF_Steve/80`);
+//};
+
+//const loadMinecraftAvatar = async (username: string) => {
+//  setAvatarUrl(`/mcavatar?username=${username}`);
+//};
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,7 +217,14 @@ function AuthPageContent() {
             <aside className="dashboard__sidebar">
               <div className="profile-card">
                 <div className="profile-card__avatar">
-                  <Image src="/assets/averneth-logo.png" alt="Avatar" width={80} height={80} />
+                  <img
+                    src={avatarUrl}
+                    alt={`${user.username} Minecraft skin`}
+                    width={80}
+                    height={80}
+                    style={{ borderRadius: '8px', imageRendering: 'pixelated' }}
+                    onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=80&default=MHF_Steve'; }}
+                  />
                 </div>
                 <div className="profile-card__info">
                   <h3 className="profile-card__name">{user.username}</h3>

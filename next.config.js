@@ -4,6 +4,7 @@ const path = require('path');
 const nextConfig = {
   output: 'standalone',
   trailingSlash: true,
+  skipTrailingSlashRedirect: true,
   images: {
     unoptimized: true,
   },
@@ -11,13 +12,21 @@ const nextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:3001/api/:path*',
-      },
-    ];
-  },
+  return [
+//    {
+//      source: '/api/minecraft/:path*/',
+//      destination: '/api/minecraft/:path*/',
+//    },
+//    {
+//      source: '/api/minecraft/:path*',
+//      destination: '/api/minecraft/:path*',
+//    },
+    {
+      source: '/api/:path*/',
+      destination: 'http://localhost:3001/api/:path*/',
+    },
+  ];
+},
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
