@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       message: "Giriş başarılı.",
       username: username,
+      token: token, // Token'ü frontend'e gönder
     });
     
     setAuthCookie(response, token);

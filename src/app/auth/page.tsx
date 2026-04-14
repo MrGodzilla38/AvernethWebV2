@@ -90,6 +90,13 @@ const loadMinecraftAvatar = (username: string) => {
       
       if (data.ok) {
         setLoginMessage('Giriş başarılı! Yönlendiriliyor...');
+        
+        // Manuel cookie set et
+        if (data.token) {
+          document.cookie = `averneth_session=${data.token}; path=/; max-age=${7*24*60*60}; samesite=lax`;
+          console.log('DEBUG: Manuel cookie set edildi');
+        }
+        
         setTimeout(() => {
           window.location.reload();
         }, 1000);
