@@ -24,8 +24,11 @@ function AuthPageContent() {
     // Check if user is already logged in
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/me');
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include',
+        });
         const data = await response.json();
+        console.log('DEBUG: Auth check response:', data);
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
           setUser({ username: data.username, rank: data.rank });
@@ -74,13 +77,16 @@ const loadMinecraftAvatar = (username: string) => {
     setLoginMessage('');
     
     try {
+      console.log('DEBUG: Sending login request for:', loginForm.username);
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
+        credentials: 'include',
       });
       
       const data = await response.json();
+      console.log('DEBUG: Login response:', data);
       
       if (data.ok) {
         setLoginMessage('Giriş başarılı! Yönlendiriliyor...');
@@ -91,6 +97,7 @@ const loadMinecraftAvatar = (username: string) => {
         setLoginMessage(data.error || 'Giriş başarısız');
       }
     } catch (error) {
+      console.error('DEBUG: Login fetch error:', error);
       setLoginMessage('Bir hata oluştu');
     }
   };

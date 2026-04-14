@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
     );
 
     const token = generateToken(username);
+    console.log('DEBUG: Generated token:', token.substring(0, 20) + '...');
+    
     const response = NextResponse.json({
       ok: true,
       message: "Giriş başarılı.",
@@ -67,9 +69,10 @@ export async function POST(req: NextRequest) {
     });
     
     setAuthCookie(response, token);
+    console.log('DEBUG: Cookie set in response');
     return response;
   } catch (err) {
-    console.error(err);
+    console.error('Login error:', err);
     return NextResponse.json({ ok: false, error: "Veritabanı hatası. Yapılandırmayı kontrol edin." }, { status: 500 });
   }
 }

@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   const raw = req.cookies.get('averneth_session')?.value;
+  console.log('DEBUG: Cookie value:', raw ? raw.substring(0, 20) + '...' : 'NOT_FOUND');
   if (!raw) return NextResponse.json({ ok: true, loggedIn: false });
   
   try {
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
       rank: rank
     });
   } catch (_e) {
+    console.log('DEBUG: JWT verification failed:', _e);
     return NextResponse.json({ ok: true, loggedIn: false });
   }
 }
