@@ -13,6 +13,8 @@ const RATE_MAX = 30;
 
 export function rateLimit(ip: string): boolean {
   const now = Date.now();
+  if (rateBuckets.size > 10000) rateBuckets.clear();
+  
   let b = rateBuckets.get(ip);
   if (!b || now > b.reset) {
     b = { count: 0, reset: now + RATE_WINDOW_MS };

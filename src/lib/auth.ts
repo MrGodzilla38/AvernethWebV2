@@ -70,7 +70,7 @@ export function setAuthCookie(response: any, token: string) {
   response.cookies.set("averneth_session", token, {
     httpOnly: true,
     secure: false, //process.env.NODE_ENV === "production",
-    sameSite: "strict", //"lax",
+    sameSite: "strict",
     maxAge: JWT_EXPIRES_DAYS * 24 * 60 * 60,
     path: "/",
   });
@@ -80,7 +80,7 @@ export function clearAuthCookie(response: any) {
   response.cookies.set("averneth_session", "", {
     httpOnly: true,
     secure: false, //process.env.NODE_ENV === "production",
-    sameSite: "strict", //"lax",
+    sameSite: "strict",
     maxAge: 0,
     path: "/",
   });

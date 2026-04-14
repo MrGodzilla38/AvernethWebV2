@@ -12,20 +12,7 @@ const nextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   async rewrites() {
-  return [
-//    {
-//      source: '/api/minecraft/:path*/',
-//      destination: '/api/minecraft/:path*/',
-//    },
-//    {
-//      source: '/api/minecraft/:path*',
-//      destination: '/api/minecraft/:path*',
-//    },
-    {
-      source: '/api/:path*/',
-      destination: 'http://localhost:3001/api/:path*/',
-    },
-  ];
+  return [];
 },
   webpack: (config) => {
     config.resolve.alias = {
