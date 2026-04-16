@@ -404,6 +404,47 @@ NLOGIN_COL_BALANCE=balance
 - `npm run deploy` - Build et ve production'da başlat
 - `npm run lint` - ESLint çalıştır
 
+### Kullanıcı Yönetim Script'leri
+
+#### Rol Atama Script'i (`scripts/assign-role.sh`)
+
+Bu script ile kullanıcıların rollerini kolayca değiştirebilirsiniz.
+
+**Kullanım:**
+```bash
+bash ./scripts/assign-role.sh <kullanıcı_adi> <yeni_rol>
+```
+
+**Geçerli roller:**
+- `Oyuncu` (varsayılan)
+- `Admin`
+- `Kurucu`
+- `Moderator`
+- `VIP`
+
+**Örnekler:**
+```bash
+# Kullanıcıyı Admin yap
+bash ./scripts/assign-role.sh UstaGodzilla Admin
+
+# Kullanıcıyı VIP yap
+bash ./scripts/assign-role.sh Oyuncu123 VIP
+```
+
+**Script'in özellikleri:**
+- Rol validasyonu (sadece geçerli roller kabul edilir)
+- MySQL bağlantısı kontrolü
+- Kullanıcı varlığı kontrolü
+- Mevcut ve yeni rolü gösterir
+- Hata durumlarında açıklamalı mesajlar
+
+**Gereksinimler:**
+- MySQL sunucusunun çalışıyor olması
+- `nLogin` veritabanının mevcut olması
+- Script'in çalıştırma izni (`chmod +x scripts/assign-role.sh`)
+
+**Not:** Fish shell kullananlar `bash ./scripts/assign-role.sh` olarak çalıştırmalı.
+
 ## 🔐 Güvenlik Özellikleri
 
 - **Şifreleme**: bcrypt ile yapılandırılabilir turlarda şifreleme
