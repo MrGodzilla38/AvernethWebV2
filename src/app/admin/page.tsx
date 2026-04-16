@@ -14,6 +14,8 @@ export default function AdminPage() {
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [editingRank, setEditingRank] = useState<string>('');
   const [editingBalance, setEditingBalance] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     // Check if user is logged in and has admin privileges
@@ -221,8 +223,14 @@ export default function AdminPage() {
                     type="search" 
                     placeholder="Kullanıcı ara..." 
                     className="admin-search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <select className="admin-select">
+                  <select 
+                    className="admin-select"
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                  >
                     <option value="">Tüm Roller</option>
                     <option value="Oyuncu">Oyuncu</option>
                     <option value="Rehber">Rehber</option>
@@ -249,12 +257,26 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {users.length === 0 ? (
-                        <tr>
-                          <td colSpan={8} className="empty-table">Kullanıcı bulunamadı.</td>
-                        </tr>
-                      ) : (
-                        users.map((user) => (
+                      {(() => {
+                        const filteredUsers = users.filter((user) => {
+                          const matchesRole = selectedRole === '' || user.rank === selectedRole;
+                          const matchesSearch = searchQuery === '' || 
+                            user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+                          return matchesRole && matchesSearch;
+                        });
+                        
+                        if (filteredUsers.length === 0) {
+                          return (
+                            <tr>
+                              <td colSpan={8} className="empty-table">
+                                {users.length === 0 ? 'Kullanıcı bulunamadı.' : 'Filtreye uygun kullanıcı bulunamadı.'}
+                              </td>
+                            </tr>
+                          );
+                        }
+                        
+                        return filteredUsers.map((user) => (
                           <tr key={user.id}>
                             <td>{user.id}</td>
                             <td className="user-cell">
@@ -350,8 +372,8 @@ export default function AdminPage() {
                               </div>
                             </td>
                           </tr>
-                        ))
-                      )}
+                        ));
+                      })()}
                     </tbody>
                   </table>
                 </div>
