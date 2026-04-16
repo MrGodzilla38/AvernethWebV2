@@ -123,7 +123,7 @@ CREATE TABLE nlogin (
   last_ip VARCHAR(45),
   last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   email VARCHAR(255),
-  rank INT DEFAULT 0,
+  rank VARCHAR(50) DEFAULT 'Oyuncu',
   balance DECIMAL(10,2) DEFAULT 0.00,
   INDEX idx_username (last_name),
   INDEX idx_email (email),
@@ -272,7 +272,7 @@ CREATE TABLE nlogin (
   last_ip VARCHAR(45),
   last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   email VARCHAR(255),
-  rank INT DEFAULT 0,
+  rank VARCHAR(50) DEFAULT 'Oyuncu',
   balance DECIMAL(10,2) DEFAULT 0.00,
   INDEX idx_username (last_name),
   INDEX idx_email (email),
@@ -292,8 +292,8 @@ CREATE INDEX idx_last_login_ip ON nlogin(last_seen, last_ip);
 **Örnek veri ekleme (test için):**
 ```sql
 INSERT INTO nlogin (last_name, password, email, rank, balance) VALUES 
-('testuser1', '$2b$10$hashed_password_here', 'user1@example.com', 1, 100.00),
-('testuser2', '$2b$10$another_hashed_password', 'user2@example.com', 0, 50.00);
+('testuser1', '$2b$10$hashed_password_here', 'user1@example.com', 'Admin', 100.00),
+('testuser2', '$2b$10$another_hashed_password', 'user2@example.com', 'Oyuncu', 50.00);
 ```
 
 ### Veritabanı Bakımı

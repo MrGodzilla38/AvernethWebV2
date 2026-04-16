@@ -11,6 +11,9 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [editingRank, setEditingRank] = useState<string>('');
+  const [editingBalance, setEditingBalance] = useState<string>('');
 
   useEffect(() => {
     // Check if user is logged in and has admin privileges
@@ -23,7 +26,8 @@ export default function AdminPage() {
           setUser({ username: data.username, rank: data.rank });
           
           // Check if user has admin privileges
-          if (data.rank !== 'Admin' && data.rank !== 'Owner') {
+          const allowedRanks = ['Admin', 'Kurucu', 'Developer'];
+          if (!allowedRanks.includes(data.rank)) {
             window.location.href = '/'; // Redirect non-admin users
             return;
           }
@@ -79,6 +83,65 @@ export default function AdminPage() {
       window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  };
+
+  const getRankBadgeClass = (rank: string) => {
+    const rankLower = rank.toLowerCase();
+    const rankMap: Record<string, string> = {
+      'oyuncu': 'oyuncu',
+      'rehber': 'rehber',
+      'mimar': 'mimar',
+      'moderator': 'moderator',
+      'developer': 'developer',
+      'admin': 'admin',
+      'kurucu': 'kurucu'
+    };
+    return rankMap[rankLower] || 'oyuncu';
+  };
+
+  const startEditing = (user: any) => {
+    setEditingUserId(user.id);
+    setEditingRank(user.rank);
+    setEditingBalance(user.balance?.toString() || '0');
+  };
+
+  const cancelEditing = () => {
+    setEditingUserId(null);
+    setEditingRank('');
+    setEditingBalance('');
+  };
+
+  const saveUser = async (userId: number) => {
+    try {
+      const response = await fetch('/api/admin/update-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: userId,
+          rank: editingRank,
+          balance: parseFloat(editingBalance)
+        })
+      });
+
+      const data = await response.json();
+      if (data.ok) {
+        // Update the user in the local state
+        setUsers(users.map(u => 
+          u.id === userId 
+            ? { ...u, rank: editingRank, balance: parseFloat(editingBalance) }
+            : u
+        ));
+        cancelEditing();
+        showToast('Kullanıcı güncellendi!');
+      } else {
+        showToast('Hata: ' + (data.error || 'Kullanıcı güncellenemedi'));
+      }
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      showToast('Kullanıcı güncellenemedi');
     }
   };
 
@@ -196,10 +259,13 @@ export default function AdminPage() {
                   />
                   <select className="admin-select">
                     <option value="">Tüm Roller</option>
-                    <option value="player">Oyuncu</option>
-                    <option value="vip">VIP</option>
-                    <option value="mod">Moderatör</option>
-                    <option value="admin">Admin</option>
+                    <option value="Oyuncu">Oyuncu</option>
+                    <option value="Rehber">Rehber</option>
+                    <option value="Mimar">Mimar</option>
+                    <option value="Moderator">Moderator</option>
+                    <option value="Developer">Developer</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Kurucu">Kurucu</option>
                   </select>
                 </div>
 
@@ -211,8 +277,8 @@ export default function AdminPage() {
                         <th>Kullanıcı Adı</th>
                         <th>E-posta</th>
                         <th>Rol</th>
+                        <th>Bakiye</th>
                         <th>Kayıt Tarihi</th>
-                        <th>Son Giriş</th>
                         <th>Durum</th>
                         <th>İşlemler</th>
                       </tr>
@@ -234,12 +300,41 @@ export default function AdminPage() {
                             </td>
                             <td>{user.email || '-'}</td>
                             <td>
-                              <span className={`badge badge--${user.rank.toLowerCase()}`}>
-                                {user.rank}
-                              </span>
+                              {editingUserId === user.id ? (
+                                <select 
+                                  value={editingRank} 
+                                  onChange={(e) => setEditingRank(e.target.value)}
+                                  className="form-input"
+                                >
+                                  <option value="Oyuncu">Oyuncu</option>
+                                  <option value="Rehber">Rehber</option>
+                                  <option value="Mimar">Mimar</option>
+                                  <option value="Moderator">Moderator</option>
+                                  <option value="Developer">Developer</option>
+                                  <option value="Admin">Admin</option>
+                                  <option value="Kurucu">Kurucu</option>
+                                </select>
+                              ) : (
+                                <span className={`rank-badge ${getRankBadgeClass(user.rank)}`}>
+                                  {user.rank}
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              {editingUserId === user.id ? (
+                                <input 
+                                  type="number" 
+                                  value={editingBalance} 
+                                  onChange={(e) => setEditingBalance(e.target.value)}
+                                  className="form-input"
+                                  step="0.01"
+                                  min="0"
+                                />
+                              ) : (
+                                '$' + (user.balance || 0).toFixed(2)
+                              )}
                             </td>
                             <td>{user.registeredAt || '-'}</td>
-                            <td>{user.lastLogin || '-'}</td>
                             <td>
                               <span className={`status status--${user.online ? 'online' : 'offline'}`}>
                                 {user.online ? 'Çevrimiçi' : 'Çevrimdışı'}
@@ -247,12 +342,40 @@ export default function AdminPage() {
                             </td>
                             <td>
                               <div className="admin-actions">
-                                <button className="btn btn--ghost btn--xs" title="Düzenle">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="1.5"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5"/>
-                                  </svg>
-                                </button>
+                                {editingUserId === user.id ? (
+                                  <>
+                                    <button 
+                                      onClick={() => saveUser(user.id)}
+                                      className="btn btn--primary btn--xs" 
+                                      title="Kaydet"
+                                    >
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
+                                    <button 
+                                      onClick={cancelEditing}
+                                      className="btn btn--ghost btn--xs" 
+                                      title="İptal"
+                                    >
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                        <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                      </svg>
+                                    </button>
+                                  </>
+                                ) : (
+                                  <button 
+                                    onClick={() => startEditing(user)}
+                                    className="btn btn--ghost btn--xs" 
+                                    title="Düzenle"
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="1.5"/>
+                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5"/>
+                                    </svg>
+                                  </button>
+                                )}
                                 <button className="btn btn--ghost btn--xs" title="Sil">
                                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                     <polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="1.5"/>

@@ -145,12 +145,24 @@ body {
   text-transform: uppercase;
 }
 
-.rank-badge.uye { background: rgba(148, 163, 184, 0.15); color: var(--silver-400); }
-.rank-badge.rehber { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-.rank-badge.moderator { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-.rank-badge.admin { background: rgba(124, 58, 237, 0.15); color: var(--purple-300); }
-.rank-badge.basyonetici { background: rgba(185, 28, 28, 0.15); color: #b91c1c; }
-.rank-badge.kurucu { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.rank-badge.oyuncu { background: rgba(156, 163, 175, 0.15); color: #9ca3af; }
+.rank-badge.rehber { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+.rank-badge.mimar { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+.rank-badge.moderator { background: rgba(29, 78, 216, 0.15); color: #1d4ed8; }
+.rank-badge.developer { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.rank-badge.admin { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.rank-badge.kurucu { 
+  background: rgba(239, 68, 68, 0.15); 
+  color: #ef4444; 
+  animation: pulse-red 2s infinite;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+  100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+}
 
 /* Modal */
 .modal {

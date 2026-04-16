@@ -46,7 +46,7 @@ export async function requireAdmin(req: NextRequest): Promise<{ success: boolean
   const dbRank = userResult.user.rank || "Uye";
   const rank = normalizeRank(dbRank);
   
-  const allowed = ["kurucu", "basyonetici", "admin"];
+  const allowed = ["kurucu", "admin", "developer"];
   const isAllowed = allowed.some(r => rank === r || rank.includes(r));
 
   if (!isAllowed) {

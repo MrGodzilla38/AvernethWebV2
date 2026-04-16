@@ -242,7 +242,7 @@ const loadMinecraftAvatar = (username: string) => {
                 </div>
                 <div className="profile-card__info">
                   <h3 className="profile-card__name">{user.username}</h3>
-                  <span className="profile-card__rank">{user.rank}</span>
+                  <span className={`profile-card__rank rank--${user.rank.toLowerCase()}`}>{user.rank}</span>
                 </div>
               </div>
 

@@ -11,7 +11,28 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { id, rank, balance } = body;
-    if (!id) return NextResponse.json({ ok: false, error: "ID gerekli." }, { status: 400 });
+
+    if (!id || !rank || balance === undefined) {
+      return NextResponse.json({ 
+        ok: false, 
+        error: "Eksik parametreler: id, rank, balance gerekli" 
+      }, { status: 400 });
+    }
+
+    const validRanks = ['Oyuncu', 'Rehber', 'Mimar', 'Moderator', 'Developer', 'Admin', 'Kurucu'];
+    if (!validRanks.includes(rank)) {
+      return NextResponse.json({ 
+        ok: false, 
+        error: "Geçersiz rank değeri" 
+      }, { status: 400 });
+    }
+
+    if (typeof balance !== 'number' || balance < 0) {
+      return NextResponse.json({ 
+        ok: false, 
+        error: "Bakiye 0 veya daha büyük bir sayı olmalı" 
+      }, { status: 400 });
+    }
 
     const p = await getPool();
     const t = q(TABLE);
@@ -26,12 +47,14 @@ export async function POST(req: NextRequest) {
       const targetRank = normalizeRank((targetRows[0] as any)[C.rank] || "Uye");
       const myRank = normalizeRank(adminCheck.user?.rank || "Uye");
 
-      // Basyonetici ve Kurucu dokunulmazdir
-      const isHighLevel = targetRank === "kurucu" || targetRank === "basyonetici";
+      // Kurucu dokunulmazdır
+      if (targetRank === "kurucu" && myRank !== "kurucu") {
+        return NextResponse.json({ ok: false, error: "Yetkiniz bu kullanicinin bilgilerini degistirmeye yetmiyor." }, { status: 403 });
+      }
 
+      // Adminler Kurucu ve diger Adminleri duzenleyemez
       if (myRank === "admin") {
-        // Adminler Kurucu, Basyonetici ve diger Adminleri duzenleyemez
-        if (isHighLevel || targetRank === "admin") {
+        if (targetRank === "kurucu" || targetRank === "admin") {
           return NextResponse.json({ ok: false, error: "Yetkiniz bu kullanicinin bilgilerini degistirmeye yetmiyor." }, { status: 403 });
         }
       }

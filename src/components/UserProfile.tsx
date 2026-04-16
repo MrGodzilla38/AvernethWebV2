@@ -8,7 +8,7 @@ interface User {
   last_name: string;
   email: string;
   locale: string;
-  rank: number;
+  rank: string;
   balance: number;
   last_seen: string;
 }
@@ -56,18 +56,29 @@ export default function UserProfile({ user, showDetails = true, size = 'medium' 
     loadMinecraftHead();
   }, [user.last_name]);
 
-  const getRankColor = (rank: number) => {
-    if (rank >= 3) return 'text-purple-600 bg-purple-100';
-    if (rank >= 2) return 'text-blue-600 bg-blue-100';
-    if (rank >= 1) return 'text-green-600 bg-green-100';
-    return 'text-gray-600 bg-gray-100';
+  const getRankColor = (rank: string) => {
+    const rankLower = rank.toLowerCase();
+    switch (rankLower) {
+      case 'kurucu':
+        return 'text-red-600 bg-red-100';
+      case 'admin':
+        return 'text-red-600 bg-red-100';
+      case 'developer':
+        return 'text-green-600 bg-green-100';
+      case 'moderator':
+        return 'text-blue-800 bg-blue-100';
+      case 'mimar':
+        return 'text-yellow-500 bg-yellow-100';
+      case 'rehber':
+        return 'text-blue-400 bg-blue-100';
+      case 'oyuncu':
+      default:
+        return 'text-gray-500 bg-gray-100';
+    }
   };
 
-  const getRankName = (rank: number) => {
-    if (rank >= 3) return 'Admin';
-    if (rank >= 2) return 'Moderator';
-    if (rank >= 1) return 'VIP';
-    return 'Player';
+  const getRankName = (rank: string) => {
+    return rank || 'Oyuncu';
   };
 
   const getLocaleFlag = (locale: string) => {
