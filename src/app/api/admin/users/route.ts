@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const p = await getPool();
     const t = q(TABLE);
     const [rows] = await p.execute(
-      "SELECT " + q(C.id) + " as id, " + q(C.name) + " as username, " + q(C.email) + " as email, " + q(C.rank) + " as rank, " + q(C.balance) + " as balance FROM " + t
+      "SELECT " + q(C.id) + " as " + q("id") + ", " + q(C.name) + " as " + q("username") + ", " + q(C.email) + " as " + q("email") + ", " + q(C.rank) + " as " + q("rank") + ", " + q(C.balance) + " as " + q("balance") + ", " + q(C.lastlogin) + " as " + q("lastSeen") + " FROM " + t
     );
     return NextResponse.json({ ok: true, users: rows });
   } catch (err) {

@@ -206,40 +206,6 @@ export default function AdminPage() {
                 </svg>
                 Kullanıcı Yönetimi
               </button>
-              <button 
-                type="button" 
-                className={`admin-nav__item ${activeTab === 'store' ? 'admin-nav__item--active' : ''}`}
-                onClick={() => setActiveTab('store')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" strokeWidth="1.5"/>
-                  <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                Mağaza Düzenleme
-              </button>
-              <button 
-                type="button" 
-                className={`admin-nav__item ${activeTab === 'wiki' ? 'admin-nav__item--active' : ''}`}
-                onClick={() => setActiveTab('wiki')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Wiki Düzenleme
-              </button>
-              <button 
-                type="button" 
-                className={`admin-nav__item ${activeTab === 'server' ? 'admin-nav__item--active' : ''}`}
-                onClick={() => setActiveTab('server')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect x="2" y="3" width="20" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="2" y="9" width="20" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="2" y="15" width="20" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                </svg>
-                Sunucu Ayarları
-              </button>
             </nav>
           </aside>
 
@@ -248,7 +214,6 @@ export default function AdminPage() {
               <section className="admin-section">
                 <div className="admin-section__header">
                   <h2 className="admin-section__title">Kullanıcı Yönetimi</h2>
-                  <button className="btn btn--primary btn--sm">Yeni Kullanıcı Ekle</button>
                 </div>
                 
                 <div className="admin-filters">
@@ -278,7 +243,7 @@ export default function AdminPage() {
                         <th>E-posta</th>
                         <th>Rol</th>
                         <th>Bakiye</th>
-                        <th>Kayıt Tarihi</th>
+                        <th>Son Görülme</th>
                         <th>Durum</th>
                         <th>İşlemler</th>
                       </tr>
@@ -294,7 +259,7 @@ export default function AdminPage() {
                             <td>{user.id}</td>
                             <td className="user-cell">
                               <div className="user-avatar">
-                                <Image src="/averneth-logo.png" alt="" width={32} height={32} />
+                                <img src={`/mcavatar?username=${encodeURIComponent(user.username)}`} alt="" width={32} height={32} />
                               </div>
                               {user.username}
                             </td>
@@ -331,10 +296,10 @@ export default function AdminPage() {
                                   min="0"
                                 />
                               ) : (
-                                '$' + (user.balance || 0).toFixed(2)
+                                '$' + parseFloat(user.balance || 0).toFixed(2)
                               )}
                             </td>
-                            <td>{user.registeredAt || '-'}</td>
+                            <td>{user.lastSeen ? new Date(user.lastSeen).toLocaleDateString('tr-TR') : '-'}</td>
                             <td>
                               <span className={`status status--${user.online ? 'online' : 'offline'}`}>
                                 {user.online ? 'Çevrimiçi' : 'Çevrimdışı'}
@@ -393,73 +358,6 @@ export default function AdminPage() {
               </section>
             )}
 
-            {activeTab === 'store' && (
-              <section className="admin-section">
-                <div className="admin-section__header">
-                  <h2 className="admin-section__title">Mağaza Düzenleme</h2>
-                  <button className="btn btn--primary btn--sm">Yeni Ürün Ekle</button>
-                </div>
-                
-                <div className="empty-state">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" strokeWidth="1.5"/>
-                    <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.5"/>
-                    <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                  <p>Mağaza yönetimi yakında eklenecek.</p>
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'wiki' && (
-              <section className="admin-section">
-                <div className="admin-section__header">
-                  <h2 className="admin-section__title">Wiki Düzenleme</h2>
-                  <button className="btn btn--primary btn--sm">Yeni Sayfa Ekle</button>
-                </div>
-                
-                <div className="empty-state">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <p>Wiki yönetimi yakında eklenecek.</p>
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'server' && (
-              <section className="admin-section">
-                <div className="admin-section__header">
-                  <h2 className="admin-section__title">Sunucu Ayarları</h2>
-                  <button className="btn btn--success btn--sm">Kaydet</button>
-                </div>
-                
-                <div className="admin-form">
-                  <div className="form-group">
-                    <label>Sunucu IP</label>
-                    <input type="text" defaultValue="play.averneth.net" className="form-input" />
-                  </div>
-                  <div className="form-group">
-                    <label>Sunucu Port</label>
-                    <input type="text" defaultValue="25565" className="form-input" />
-                  </div>
-                  <div className="form-group">
-                    <label>Maksimum Oyuncu Sayısı</label>
-                    <input type="number" defaultValue="100" className="form-input" />
-                  </div>
-                  <div className="form-group">
-                    <label>Motd Mesajı</label>
-                    <textarea className="form-textarea" defaultValue="§6§lAVERNETH §7- §fMinecraft RPG Sunucusu"></textarea>
-                  </div>
-                  <div className="form-group">
-                    <label>
-                      <input type="checkbox" defaultChecked />
-                      Sunucu çevrimiçi
-                    </label>
-                  </div>
-                </div>
-              </section>
-            )}
           </div>
         </div>
       </main>
