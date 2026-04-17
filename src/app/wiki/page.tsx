@@ -8,6 +8,7 @@ import './wiki.css';
 export default function WikiPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [headerAvatarUrl, setHeaderAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve');
   const [activeFilter, setActiveFilter] = useState('tumu');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -20,6 +21,7 @@ export default function WikiPage() {
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
           setUsername(data.username);
+          setHeaderAvatarUrl(`https://mc-heads.net/avatar/${data.username}/40`);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -267,7 +269,15 @@ export default function WikiPage() {
             </button>
             {isLoggedIn ? (
               <Link href="/auth" className="header-profile" title="Hesabım">
-                <Image src="/assets/averneth-logo.png" alt="Profil" className="header-profile__img" width={40} height={40} />
+                <img
+                  src={headerAvatarUrl}
+                  alt="Profil"
+                  className="header-profile__img"
+                  width={40}
+                  height={40}
+                  style={{ imageRendering: 'pixelated' }}
+                  onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve'; }}
+                />
               </Link>
             ) : (
               <>
