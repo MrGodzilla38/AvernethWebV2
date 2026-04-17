@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "fuser -k 3000/tcp 2>/dev/null || true && next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "fuser -k 3000/tcp 2>/dev/null || true && next start",
     "lint": "next lint",
     "build:prod": "set NODE_ENV=production&& next build",
     "build:prod:linux": "NODE_ENV=production next build",
-    "start:prod": "set NODE_ENV=production&& next start",
+    "start:prod": "fuser -k 3000/tcp 2>/dev/null || true && set NODE_ENV=production&& next start",
     "deploy": "npm run build:prod && npm run start:prod"
   },
   "dependencies": {
