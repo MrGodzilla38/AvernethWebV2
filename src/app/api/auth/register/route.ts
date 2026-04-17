@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     }
 
     await p.execute(
-      "INSERT INTO " + t + " (" + q(C.name) + ", " + q(C.password) + ", " + q(C.address) + ", " + q(C.email) + ", " + q(C.rank) + ") VALUES (?, ?, ?, ?, 'Oyuncu')",
+      "INSERT INTO " + t + " (" + q(C.name) + ", " + q(C.password) + ", " + q(C.address) + ", " + q(C.email) + ", " + q(C.rank) + ", " + q(C.created) + ") VALUES (?, ?, ?, ?, 'Oyuncu', NOW())",
       [username, hash, ip, emailNorm]
     );
 

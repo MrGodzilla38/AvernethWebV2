@@ -10,7 +10,7 @@ const C = {
   email: process.env.NLOGIN_COL_EMAIL || "email",
   rank: process.env.NLOGIN_COL_RANK || "rank",
   balance: process.env.NLOGIN_COL_BALANCE || "balance",
-  created: process.env.NLOGIN_COL_CREATED || "created",
+  created: process.env.NLOGIN_COL_CREATED || "creation_date",
 };
 
 function q(ident: string) {

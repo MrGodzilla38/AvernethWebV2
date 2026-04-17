@@ -119,15 +119,24 @@ USE nLogin;
 CREATE TABLE nlogin (
   ai INT AUTO_INCREMENT PRIMARY KEY,
   last_name VARCHAR(255) NOT NULL,
+  unique_id VARCHAR(255),
+  mojang_id VARCHAR(255),
+  bedrock_id VARCHAR(255),
   password VARCHAR(255) NOT NULL,
+  premium BOOLEAN DEFAULT FALSE,
   last_ip VARCHAR(45),
   last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   email VARCHAR(255),
-  rank VARCHAR(50) DEFAULT 'Oyuncu',
+  discord VARCHAR(255),
+  `rank` VARCHAR(50) DEFAULT 'Oyuncu',
   balance DECIMAL(10,2) DEFAULT 0.00,
+  locale VARCHAR(10) DEFAULT 'tr_TR',
+  settings TEXT,
   INDEX idx_username (last_name),
   INDEX idx_email (email),
-  INDEX idx_last_seen (last_seen)
+  INDEX idx_last_seen (last_seen),
+  INDEX idx_creation_date (creation_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 # Tabloyu kontrol edin
@@ -213,6 +222,7 @@ NLOGIN_COL_LASTLOGIN=last_seen
 NLOGIN_COL_EMAIL=email
 NLOGIN_COL_RANK=rank
 NLOGIN_COL_BALANCE=balance
+NLOGIN_COL_CREATED=creation_date
 
 # Development Ayarları
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -268,15 +278,24 @@ Uygulama aşağıdaki optimize edilmiş tablo yapısına sahip bir MySQL veritab
 CREATE TABLE nlogin (
   ai INT AUTO_INCREMENT PRIMARY KEY,
   last_name VARCHAR(255) NOT NULL,
+  unique_id VARCHAR(255),
+  mojang_id VARCHAR(255),
+  bedrock_id VARCHAR(255),
   password VARCHAR(255) NOT NULL,
+  premium BOOLEAN DEFAULT FALSE,
   last_ip VARCHAR(45),
   last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   email VARCHAR(255),
-  rank VARCHAR(50) DEFAULT 'Oyuncu',
+  discord VARCHAR(255),
+  `rank` VARCHAR(50) DEFAULT 'Oyuncu',
   balance DECIMAL(10,2) DEFAULT 0.00,
+  locale VARCHAR(10) DEFAULT 'tr_TR',
+  settings TEXT,
   INDEX idx_username (last_name),
   INDEX idx_email (email),
-  INDEX idx_last_seen (last_seen)
+  INDEX idx_last_seen (last_seen),
+  INDEX idx_creation_date (creation_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -392,6 +411,7 @@ NLOGIN_COL_LASTLOGIN=last_seen
 NLOGIN_COL_EMAIL=email
 NLOGIN_COL_RANK=rank
 NLOGIN_COL_BALANCE=balance
+NLOGIN_COL_CREATED=creation_date
 ```
 
 ## 📝 Mevcut Script'ler
@@ -417,18 +437,20 @@ bash ./scripts/assign-role.sh <kullanıcı_adi> <yeni_rol>
 
 **Geçerli roller:**
 - `Oyuncu` (varsayılan)
+- `Rehber`
+- `Mimar`
+- `Moderator`
+- `Developer`
 - `Admin`
 - `Kurucu`
-- `Moderator`
-- `VIP`
 
 **Örnekler:**
 ```bash
 # Kullanıcıyı Admin yap
 bash ./scripts/assign-role.sh UstaGodzilla Admin
 
-# Kullanıcıyı VIP yap
-bash ./scripts/assign-role.sh Oyuncu123 VIP
+# Kullanıcıyı Rehber yap
+./scripts/assign-role.sh Oyuncu123 Rehber
 ```
 
 **Script'in özellikleri:**
