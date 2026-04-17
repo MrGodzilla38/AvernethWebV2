@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getMinecraftHead, extractMinecraftUsername } from '../lib/minecraft';
 
 interface User {
   ai: number;
@@ -19,8 +18,15 @@ interface UserProfileProps {
   size?: 'small' | 'medium' | 'large';
 }
 
+// Extract Minecraft username from display name
+function extractMinecraftUsername(displayName: string): string {
+  return displayName
+    .replace(/[^a-zA-Z0-9_]/g, '')
+    .replace(/\s+/g, '');
+}
+
 export default function UserProfile({ user, showDetails = true, size = 'medium' }: UserProfileProps) {
-  const [headUrl, setHeadUrl] = useState<string>('/steve-head.png');
+  const [headUrl, setHeadUrl] = useState<string>('https://mc-heads.net/avatar/Steve/40');
   const [loading, setLoading] = useState(true);
   const [headExists, setHeadExists] = useState(false);
 
@@ -41,12 +47,12 @@ export default function UserProfile({ user, showDetails = true, size = 'medium' 
       try {
         setLoading(true);
         const minecraftUsername = extractMinecraftUsername(user.last_name);
-        const headData = await getMinecraftHead(minecraftUsername);
-        setHeadUrl(headData.url);
-        setHeadExists(headData.exists);
+        // Use mc-heads.net like homepage and wiki
+        setHeadUrl(`https://mc-heads.net/avatar/${minecraftUsername}/40`);
+        setHeadExists(true);
       } catch (error) {
         console.error('Error loading Minecraft head:', error);
-        setHeadUrl('https://crafatar.com/avatars/Steve?size=64&default=MHF_Steve');
+        setHeadUrl('https://mc-heads.net/avatar/Steve/40');
         setHeadExists(false);
       } finally {
         setLoading(false);
@@ -102,7 +108,7 @@ export default function UserProfile({ user, showDetails = true, size = 'medium' 
           className={`${sizeClasses[size]} rounded-full object-cover border-2 ${headExists ? 'border-green-400' : 'border-gray-300'} shadow-sm`}
           onError={(e) => {
             // Fallback to Steve head if image fails to load
-            e.currentTarget.src = 'https://crafatar.com/avatars/Steve?size=64&default=MHF_Steve';
+            e.currentTarget.src = 'https://mc-heads.net/avatar/Steve/40';
             setHeadExists(false);
           }}
         />

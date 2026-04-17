@@ -32,7 +32,7 @@ function AuthPageContent() {
         console.log('DEBUG: Auth check response:', data);
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
-          setUser({ username: data.username, rank: data.rank, email: data.email, created: data.created });
+          setUser({ username: data.username, rank: data.rank, email: data.email, created: data.created, balance: data.balance });
           loadMinecraftAvatar(data.username);
         }
       } catch (error) {
@@ -214,10 +214,17 @@ const loadMinecraftAvatar = (username: string) => {
               </ul>
             </nav>
             <div className="topbar__actions">
-              <div className="user-info">
-                <span>{user.username} ({user.rank})</span>
-              </div>
-              <button onClick={handleLogout} className="btn btn--ghost btn--sm">Çıkış Yap</button>
+              <Link href="/auth" className="user-profile-link">
+                <img 
+                  src={`https://mc-heads.net/avatar/${encodeURIComponent(user.username)}/40`} 
+                  alt="" 
+                  className="user-profile-avatar"
+                  width={32}
+                  height={32}
+                />
+                <span className="user-profile-name">{user.username}</span>
+                <span className="user-profile-rank">({user.rank})</span>
+              </Link>
             </div>
           </div>
         </header>
@@ -273,7 +280,7 @@ const loadMinecraftAvatar = (username: string) => {
                   <div className="details-item">
                     <span className="details-item__label">Bakiye:</span>
                     <div className="details-item__value bakiye-box">
-                      <span>0.00 ₺</span>
+                      <span>{Math.floor(user.balance || 0)} ₺</span>
                       <button className="add-balance-btn">+</button>
                     </div>
                   </div>

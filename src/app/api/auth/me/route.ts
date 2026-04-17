@@ -20,21 +20,34 @@ export async function GET(req: NextRequest) {
 
     let userData: any = null;
 
-    // Try with created column first
+    // Try with created and balance columns first
     try {
       const [rows] = await p.execute(
-        "SELECT " + q(C.rank) + ", " + q(C.email) + ", " + q(C.created) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
+        "SELECT " + q(C.rank) + ", " + q(C.email) + ", " + q(C.created) + ", " + q(C.balance) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
         [payload.sub]
       ) as [any[], any];
       userData = Array.isArray(rows) && rows.length > 0 ? rows[0] as any : null;
     } catch (colErr: any) {
-      // If 'created' column doesn't exist, try without it
+      // If 'created' or 'balance' column doesn't exist, try without them
       if (colErr?.code === 'ER_BAD_FIELD_ERROR') {
-        const [rows] = await p.execute(
-          "SELECT " + q(C.rank) + ", " + q(C.email) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
-          [payload.sub]
-        ) as [any[], any];
-        userData = Array.isArray(rows) && rows.length > 0 ? rows[0] as any : null;
+        try {
+          const [rows] = await p.execute(
+            "SELECT " + q(C.rank) + ", " + q(C.email) + ", " + q(C.balance) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
+            [payload.sub]
+          ) as [any[], any];
+          userData = Array.isArray(rows) && rows.length > 0 ? rows[0] as any : null;
+        } catch (balanceErr: any) {
+          // If balance also doesn't exist, try basic columns only
+          if (balanceErr?.code === 'ER_BAD_FIELD_ERROR') {
+            const [rows] = await p.execute(
+              "SELECT " + q(C.rank) + ", " + q(C.email) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
+              [payload.sub]
+            ) as [any[], any];
+            userData = Array.isArray(rows) && rows.length > 0 ? rows[0] as any : null;
+          } else {
+            throw balanceErr;
+          }
+        }
       } else {
         throw colErr;
       }
@@ -43,6 +56,7 @@ export async function GET(req: NextRequest) {
     const rank = userData?.[C.rank] || "Üye";
     const email = userData?.[C.email] || null;
     const created = userData?.[C.created] || null;
+    const balance = userData?.[C.balance] || 0;
 
     return NextResponse.json({
       ok: true,
@@ -50,7 +64,8 @@ export async function GET(req: NextRequest) {
       username: payload.rn || payload.sub,
       rank: rank,
       email: email,
-      created: created
+      created: created,
+      balance: balance
     });
   } catch (_e) {
     console.log('DEBUG: JWT verification failed:', _e);

@@ -16,6 +16,9 @@ export default function AdminPage() {
   const [editingBalance, setEditingBalance] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [deleteModalUser, setDeleteModalUser] = useState<any>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState<string>('');
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     // Check if user is logged in and has admin privileges
@@ -102,6 +105,43 @@ export default function AdminPage() {
     return rankMap[rankLower] || 'oyuncu';
   };
 
+  // Rol hiyerarşisi: Kurucu(6) > Admin(5) > Developer(4) > Moderator(3) > Mimar(2) > Rehber(1) > Oyuncu(0)
+  const getRankLevel = (rank: string): number => {
+    const rankLower = rank.toLowerCase();
+    const levels: Record<string, number> = {
+      'oyuncu': 0,
+      'rehber': 1,
+      'mimar': 2,
+      'moderator': 3,
+      'developer': 4,
+      'admin': 5,
+      'kurucu': 6
+    };
+    return levels[rankLower] ?? 0;
+  };
+
+  // Kullanıcının başka bir kullanıcıyı düzenleyip düzenleyemeyeceğini kontrol et
+  const canEditUser = (targetUserRank: string): boolean => {
+    if (!user?.rank) return false;
+    // Kurucu herkesi düzenleyebilir
+    if (user.rank.toLowerCase() === 'kurucu') return true;
+    const currentLevel = getRankLevel(user.rank);
+    const targetLevel = getRankLevel(targetUserRank);
+    // Sadece kendi seviyesinden düşük kullanıcıları düzenleyebilir
+    return currentLevel > targetLevel;
+  };
+
+  // Kullanıcının bir rol atayıp atayamayacağını kontrol et
+  const canAssignRank = (rankToAssign: string): boolean => {
+    if (!user?.rank) return false;
+    // Kurucu her rolü atayabilir
+    if (user.rank.toLowerCase() === 'kurucu') return true;
+    const currentLevel = getRankLevel(user.rank);
+    const assignLevel = getRankLevel(rankToAssign);
+    // Sadece kendi seviyesinden düşük rolleri atayabilir
+    return currentLevel > assignLevel;
+  };
+
   const startEditing = (user: any) => {
     setEditingUserId(user.id);
     setEditingRank(user.rank);
@@ -147,6 +187,52 @@ export default function AdminPage() {
     }
   };
 
+  const openDeleteModal = (user: any) => {
+    setDeleteModalUser(user);
+    setDeleteConfirmText('');
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalUser(null);
+    setDeleteConfirmText('');
+    setIsDeleting(false);
+  };
+
+  const deleteUser = async () => {
+    if (!deleteModalUser) return;
+    if (deleteConfirmText !== deleteModalUser.username) {
+      showToast('Kullanıcı adı eşleşmiyor!');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: deleteModalUser.id
+        })
+      });
+
+      const data = await response.json();
+      if (data.ok) {
+        setUsers(users.filter(u => u.id !== deleteModalUser.id));
+        closeDeleteModal();
+        showToast('Kullanıcı silindi!');
+      } else {
+        showToast('Hata: ' + (data.error || 'Kullanıcı silinemedi'));
+      }
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      showToast('Kullanıcı silinemedi');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-screen">
@@ -183,10 +269,17 @@ export default function AdminPage() {
             </ul>
           </nav>
           <div className="topbar__actions">
-            <div className="user-info">
-              <span>{user.username} ({user.rank})</span>
-            </div>
-            <button onClick={handleLogout} className="btn btn--ghost btn--sm">Çıkış Yap</button>
+            <Link href="/auth" className="user-profile-link">
+              <img 
+                src={`https://mc-heads.net/avatar/${encodeURIComponent(user.username)}/40`} 
+                alt="" 
+                className="user-profile-avatar"
+                width={32}
+                height={32}
+              />
+              <span className="user-profile-name">{user.username}</span>
+              <span className="user-profile-rank">({user.rank})</span>
+            </Link>
           </div>
         </div>
       </header>
@@ -251,7 +344,7 @@ export default function AdminPage() {
                         <th>E-posta</th>
                         <th>Rol</th>
                         <th>Bakiye</th>
-                        <th>Son Görülme</th>
+                        <th>Kayıt Tarihi</th>
                         <th>Durum</th>
                         <th>İşlemler</th>
                       </tr>
@@ -293,13 +386,13 @@ export default function AdminPage() {
                                   onChange={(e) => setEditingRank(e.target.value)}
                                   className="form-input"
                                 >
-                                  <option value="Oyuncu">Oyuncu</option>
-                                  <option value="Rehber">Rehber</option>
-                                  <option value="Mimar">Mimar</option>
-                                  <option value="Moderator">Moderator</option>
-                                  <option value="Developer">Developer</option>
-                                  <option value="Admin">Admin</option>
-                                  <option value="Kurucu">Kurucu</option>
+                                  {canAssignRank('Oyuncu') && <option value="Oyuncu">Oyuncu</option>}
+                                  {canAssignRank('Rehber') && <option value="Rehber">Rehber</option>}
+                                  {canAssignRank('Mimar') && <option value="Mimar">Mimar</option>}
+                                  {canAssignRank('Moderator') && <option value="Moderator">Moderator</option>}
+                                  {canAssignRank('Developer') && <option value="Developer">Developer</option>}
+                                  {canAssignRank('Admin') && <option value="Admin">Admin</option>}
+                                  {canAssignRank('Kurucu') && <option value="Kurucu">Kurucu</option>}
                                 </select>
                               ) : (
                                 <span className={`rank-badge ${getRankBadgeClass(user.rank)}`}>
@@ -318,10 +411,10 @@ export default function AdminPage() {
                                   min="0"
                                 />
                               ) : (
-                                '$' + parseFloat(user.balance || 0).toFixed(2)
+                                '$' + (Math.floor(user.balance || 0))
                               )}
                             </td>
-                            <td>{user.lastSeen ? new Date(user.lastSeen).toLocaleDateString('tr-TR') : '-'}</td>
+                            <td>{user.created ? new Date(user.created).toLocaleDateString('tr-TR') : '-'}</td>
                             <td>
                               <span className={`status status--${user.online ? 'online' : 'offline'}`}>
                                 {user.online ? 'Çevrimiçi' : 'Çevrimdışı'}
@@ -352,23 +445,33 @@ export default function AdminPage() {
                                     </button>
                                   </>
                                 ) : (
-                                  <button 
-                                    onClick={() => startEditing(user)}
-                                    className="btn btn--ghost btn--xs" 
-                                    title="Düzenle"
-                                  >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="1.5"/>
-                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5"/>
-                                    </svg>
-                                  </button>
+                                  <>
+                                    {canEditUser(user.rank) && (
+                                      <button 
+                                        onClick={() => startEditing(user)}
+                                        className="btn btn--ghost btn--xs" 
+                                        title="Düzenle"
+                                      >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="1.5"/>
+                                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5"/>
+                                        </svg>
+                                      </button>
+                                    )}
+                                    {canEditUser(user.rank) && (
+                                      <button 
+                                        onClick={() => openDeleteModal(user)}
+                                        className="btn btn--ghost btn--xs" 
+                                        title="Sil"
+                                      >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                          <polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="1.5"/>
+                                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="1.5"/>
+                                        </svg>
+                                      </button>
+                                    )}
+                                  </>
                                 )}
-                                <button className="btn btn--ghost btn--xs" title="Sil">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                    <polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="1.5"/>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="1.5"/>
-                                  </svg>
-                                </button>
                               </div>
                             </td>
                           </tr>
@@ -403,6 +506,53 @@ export default function AdminPage() {
           </div>
         </div>
       </footer>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalUser && (
+        <div className="modal-overlay" onClick={closeDeleteModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal__header">
+              <h3 className="modal__title">Kullanıcıyı Sil</h3>
+              <button onClick={closeDeleteModal} className="modal__close">×</button>
+            </div>
+            <div className="modal__body">
+              <p className="modal__text">
+                <strong>{deleteModalUser.username}</strong> kullanıcısını silmek üzeresiniz.
+              </p>
+              <p className="modal__warning">Bu işlem geri alınamaz!</p>
+              <div className="modal__confirm">
+                <label className="modal__label">
+                  Onaylamak için kullanıcı adını girin: <strong>{deleteModalUser.username}</strong>
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className="form-input modal__input"
+                  placeholder={deleteModalUser.username}
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="modal__footer">
+              <button 
+                onClick={closeDeleteModal} 
+                className="btn btn--ghost"
+                disabled={isDeleting}
+              >
+                İptal
+              </button>
+              <button 
+                onClick={deleteUser}
+                className="btn btn--danger"
+                disabled={deleteConfirmText !== deleteModalUser.username || isDeleting}
+              >
+                {isDeleting ? 'Siliniyor...' : 'Sil'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="toast" id="toast" role="status" aria-live="polite" hidden></div>
     </>

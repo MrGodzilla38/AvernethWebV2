@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import { requireAdmin, normalizeRank } from '@/lib/auth';
 
+// Rol seviyeleri: Kurucu(6) > Admin(5) > Developer(4) > Moderator(3) > Mimar(2) > Rehber(1) > Oyuncu(0)
+const RANK_LEVELS: Record<string, number> = {
+  'oyuncu': 0,
+  'rehber': 1,
+  'mimar': 2,
+  'moderator': 3,
+  'developer': 4,
+  'admin': 5,
+  'kurucu': 6
+};
+
+function getRankLevel(rank: string): number {
+  return RANK_LEVELS[rank.toLowerCase()] ?? 0;
+}
+
 export async function POST(req: NextRequest) {
   const adminCheck = await requireAdmin(req);
   if (!adminCheck.success) {
@@ -34,6 +49,15 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    const myRank = normalizeRank(adminCheck.user?.rank || "Uye");
+    const myLevel = getRankLevel(myRank);
+    const assignLevel = getRankLevel(rank);
+
+    // Kurucu her rolü atayabilir, diğerleri sadece kendi seviyesinden düşük rolleri atayabilir
+    if (myRank !== 'kurucu' && myLevel <= assignLevel) {
+      return NextResponse.json({ ok: false, error: "Bu rolü atama yetkiniz yok." }, { status: 403 });
+    }
+
     const p = await getPool();
     const t = q(TABLE);
 
@@ -45,18 +69,11 @@ export async function POST(req: NextRequest) {
 
     if (Array.isArray(targetRows) && targetRows.length > 0) {
       const targetRank = normalizeRank((targetRows[0] as any)[C.rank] || "Uye");
-      const myRank = normalizeRank(adminCheck.user?.rank || "Uye");
+      const targetLevel = getRankLevel(targetRank);
 
-      // Kurucu dokunulmazdır
-      if (targetRank === "kurucu" && myRank !== "kurucu") {
+      // Kurucu herkesi düzenleyebilir, diğerleri sadece kendi seviyesinden düşük kullanıcıları düzenleyebilir
+      if (myRank !== 'kurucu' && myLevel <= targetLevel) {
         return NextResponse.json({ ok: false, error: "Yetkiniz bu kullanicinin bilgilerini degistirmeye yetmiyor." }, { status: 403 });
-      }
-
-      // Adminler Kurucu ve diger Adminleri duzenleyemez
-      if (myRank === "admin") {
-        if (targetRank === "kurucu" || targetRank === "admin") {
-          return NextResponse.json({ ok: false, error: "Yetkiniz bu kullanicinin bilgilerini degistirmeye yetmiyor." }, { status: 403 });
-        }
       }
     }
 

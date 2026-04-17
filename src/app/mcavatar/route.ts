@@ -5,17 +5,12 @@ export async function GET(req: NextRequest) {
   if (!username) return NextResponse.json({ error: 'username required' }, { status: 400 });
 
   try {
-    const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
-
-    let imageUrl: string;
-    if (mojangRes.ok) {
-      const mojangData = await mojangRes.json();
-      imageUrl = `https://minotar.net/avatar/${mojangData.id}/80`;
-    } else {
-      imageUrl = `https://minotar.net/avatar/MHF_Steve/80`;
-    }
+    // Use mc-heads.net directly - it supports username-based lookups
+    const imageUrl = `https://mc-heads.net/avatar/${encodeURIComponent(username)}/80`;
 
     const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) throw new Error('Failed to fetch from mc-heads.net');
+    
     const buffer = await imgRes.arrayBuffer();
 
     return new NextResponse(buffer, {
@@ -25,7 +20,8 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch {
-    const fallback = await fetch(`https://minotar.net/avatar/MHF_Steve/80`);
+    // Fallback to Steve head
+    const fallback = await fetch(`https://mc-heads.net/avatar/Steve/80`);
     const buffer = await fallback.arrayBuffer();
     return new NextResponse(buffer, { headers: { 'Content-Type': 'image/png' } });
   }
