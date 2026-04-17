@@ -10,6 +10,7 @@ function AuthPageContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [avatarUrl, setAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=80&default=MHF_Steve');
+  const [showEmail, setShowEmail] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [registerForm, setRegisterForm] = useState({ username: '', password: '', confirmPassword: '', email: '' });
   const [loginMessage, setLoginMessage] = useState('');
@@ -31,7 +32,7 @@ function AuthPageContent() {
         console.log('DEBUG: Auth check response:', data);
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
-          setUser({ username: data.username, rank: data.rank });
+          setUser({ username: data.username, rank: data.rank, email: data.email, created: data.created });
           loadMinecraftAvatar(data.username);
         }
       } catch (error) {
@@ -91,15 +92,10 @@ const loadMinecraftAvatar = (username: string) => {
       if (data.ok) {
         setLoginMessage('Giriş başarılı! Yönlendiriliyor...');
         
-        // Manuel cookie set et
-        if (data.token) {
-          document.cookie = `averneth_session=${data.token}; path=/; max-age=${7*24*60*60}; samesite=lax`;
-          console.log('DEBUG: Manuel cookie set edildi');
-        }
-        
+        // Full page reload to get fresh auth state
         setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+          window.location.href = '/auth';
+        }, 500);
       } else {
         setLoginMessage(data.error || 'Giriş başarısız');
       }
@@ -134,8 +130,8 @@ const loadMinecraftAvatar = (username: string) => {
       if (data.ok) {
         setRegisterMessage('Kayıt başarılı! Yönlendiriliyor...');
         setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+          window.location.href = '/auth';
+        }, 500);
       } else {
         setRegisterMessage(data.error || 'Kayıt başarısız');
       }
@@ -146,8 +142,8 @@ const loadMinecraftAvatar = (username: string) => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      window.location.reload();
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/auth';
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -283,7 +279,7 @@ const loadMinecraftAvatar = (username: string) => {
                   </div>
                   <div className="details-item">
                     <span className="details-item__label">Kayıt Tarihi:</span>
-                    <span className="details-item__value">-</span>
+                    <span className="details-item__value">{user?.created ? new Date(user.created).toLocaleDateString('tr-TR') : '-'}</span>
                   </div>
                   <div className="details-item">
                     <span className="details-item__label">Yetki:</span>
@@ -295,7 +291,26 @@ const loadMinecraftAvatar = (username: string) => {
                   </div>
                   <div className="details-item full-width">
                     <span className="details-item__label">E-Posta:</span>
-                    <span className="details-item__value">-</span>
+                    <span className="details-item__value email-field">
+                      {showEmail ? (user?.email || '-') : '*************'}
+                      <button 
+                        className="email-toggle-btn" 
+                        onClick={() => setShowEmail(!showEmail)}
+                        title={showEmail ? 'E-postayı gizle' : 'E-postayı göster'}
+                      >
+                        {showEmail ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                            <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2"/>
+                          </svg>
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        )}
+                      </button>
+                    </span>
                   </div>
                 </div>
               </section>

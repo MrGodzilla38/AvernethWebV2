@@ -17,17 +17,40 @@ export async function GET(req: NextRequest) {
     const payload = jwt.verify(raw, JWT_SECRET) as any;
     const p = await getPool();
     const t = q(TABLE);
-    const [rows] = await p.execute(
-      "SELECT " + q(C.rank) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
-      [payload.sub]
-    );
-    const rank = Array.isArray(rows) && rows.length > 0 ? (rows[0] as any)[C.rank] : "Üye";
+
+    let userData: any = null;
+
+    // Try with created column first
+    try {
+      const [rows] = await p.execute(
+        "SELECT " + q(C.rank) + ", " + q(C.email) + ", " + q(C.created) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
+        [payload.sub]
+      ) as [any[], any];
+      userData = Array.isArray(rows) && rows.length > 0 ? rows[0] as any : null;
+    } catch (colErr: any) {
+      // If 'created' column doesn't exist, try without it
+      if (colErr?.code === 'ER_BAD_FIELD_ERROR') {
+        const [rows] = await p.execute(
+          "SELECT " + q(C.rank) + ", " + q(C.email) + " FROM " + t + " WHERE LOWER(" + q(C.name) + ") = ? LIMIT 1",
+          [payload.sub]
+        ) as [any[], any];
+        userData = Array.isArray(rows) && rows.length > 0 ? rows[0] as any : null;
+      } else {
+        throw colErr;
+      }
+    }
+
+    const rank = userData?.[C.rank] || "Üye";
+    const email = userData?.[C.email] || null;
+    const created = userData?.[C.created] || null;
 
     return NextResponse.json({
       ok: true,
       loggedIn: true,
       username: payload.rn || payload.sub,
-      rank: rank
+      rank: rank,
+      email: email,
+      created: created
     });
   } catch (_e) {
     console.log('DEBUG: JWT verification failed:', _e);

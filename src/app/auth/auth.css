@@ -290,6 +290,32 @@
   opacity: 0.6;
 }
 
+.email-field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.email-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--silver-400);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.email-toggle-btn:hover {
+  color: var(--purple-400);
+}
+
+.email-toggle-btn svg {
+  pointer-events: none;
+}
+
 /* Empty States & Tables */
 .empty-state {
   text-align: center;
