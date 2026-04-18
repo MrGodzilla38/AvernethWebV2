@@ -7,6 +7,7 @@ import Image from 'next/image';
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [balance, setBalance] = useState(0);
   const [headerAvatarUrl, setHeaderAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve');
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function Home() {
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
           setUsername(data.username);
+          setBalance(data.balance || 0);
           setHeaderAvatarUrl(`https://mc-heads.net/avatar/${data.username}/40`);
 //      try {
 //        const res = await fetch(`https://api.mojang.com/users/profiles/minecraft/${data.username}`);
@@ -90,15 +92,17 @@ export default function Home() {
             </button>
             {isLoggedIn ? (
               <Link href="/auth" className="header-profile" title="Hesabım">
-                <img
-                  src={headerAvatarUrl}
-                  alt="Profil"
-                  className="header-profile__img"
-                  width={40}
-                  height={40}
-                  style={{ imageRendering: 'pixelated' }}
-                  onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve'; }}
-                />
+                <span className="header-profile__avatar-box">
+                  <img
+                    src={headerAvatarUrl}
+                    alt="Profil"
+                    className="header-profile__img"
+                    width={36}
+                    height={36}
+                    onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve'; }}
+                  />
+                </span>
+                <span className="header-balance">{Math.floor(balance)} ₺</span>
               </Link>
             ) : (
               <>

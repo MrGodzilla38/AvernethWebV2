@@ -8,6 +8,7 @@ import './wiki.css';
 export default function WikiPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [balance, setBalance] = useState(0);
   const [headerAvatarUrl, setHeaderAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve');
   const [activeFilter, setActiveFilter] = useState('tumu');
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,6 +22,7 @@ export default function WikiPage() {
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
           setUsername(data.username);
+          setBalance(data.balance || 0);
           setHeaderAvatarUrl(`https://mc-heads.net/avatar/${data.username}/40`);
         }
       } catch (error) {
@@ -269,15 +271,17 @@ export default function WikiPage() {
             </button>
             {isLoggedIn ? (
               <Link href="/auth" className="header-profile" title="Hesabım">
-                <img
-                  src={headerAvatarUrl}
-                  alt="Profil"
-                  className="header-profile__img"
-                  width={40}
-                  height={40}
-                  style={{ imageRendering: 'pixelated' }}
-                  onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve'; }}
-                />
+                <span className="header-profile__avatar-box">
+                  <img
+                    src={headerAvatarUrl}
+                    alt="Profil"
+                    className="header-profile__img"
+                    width={36}
+                    height={36}
+                    onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve'; }}
+                  />
+                </span>
+                <span className="header-balance">{Math.floor(balance)} ₺</span>
               </Link>
             ) : (
               <>

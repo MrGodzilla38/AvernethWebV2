@@ -9,6 +9,8 @@ import './auth.css';
 function AuthPageContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [balance, setBalance] = useState(0);
+  const [headerAvatarUrl, setHeaderAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve');
   const [avatarUrl, setAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=80&default=MHF_Steve');
   const [showEmail, setShowEmail] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -33,6 +35,8 @@ function AuthPageContent() {
         if (data.ok && data.loggedIn) {
           setIsLoggedIn(true);
           setUser({ username: data.username, rank: data.rank, email: data.email, created: data.created, balance: data.balance });
+          setBalance(data.balance || 0);
+          setHeaderAvatarUrl(`https://mc-heads.net/avatar/${data.username}/40`);
           loadMinecraftAvatar(data.username);
         }
       } catch (error) {
@@ -209,21 +213,36 @@ const loadMinecraftAvatar = (username: string) => {
               <button type="button" className="nav__toggle" aria-expanded="false" aria-controls="nav-menu">Menü</button>
               <ul id="nav-menu" className="nav__list">
                 <li><Link className="nav__link" href="/">Ana Sayfa</Link></li>
-                <li><a className="nav__link" href="/wiki">Wiki</a></li>
-                <li><Link className="nav__link" href="/admin">Admin Paneli</Link></li>
+                <li><a className="nav__link" href="/#haberler">Haberler</a></li>
+                <li><a className="nav__link" href="/#magaza">Mağaza</a></li>
+                <li><a className="nav__link" href="/#forum">Forum</a></li>
+                <li><Link className="nav__link" href="/wiki">Wiki</Link></li>
+                <li><a className="nav__link" href="/#yardim">Yardım</a></li>
+                <li><a className="nav__link" href="/#destek">Destek</a></li>
+                <li><a className="nav__link" href="/#yetkili-basvuru">Yetkili Başvuru</a></li>
               </ul>
             </nav>
-            <div className="topbar__actions">
-              <Link href="/auth" className="user-profile-link">
-                <img 
-                  src={`https://mc-heads.net/avatar/${encodeURIComponent(user.username)}/40`} 
-                  alt="" 
-                  className="user-profile-avatar"
-                  width={32}
-                  height={32}
-                />
-                <span className="user-profile-name">{user.username}</span>
-                <span className="user-profile-rank">({user.rank})</span>
+            <div className="topbar__actions wiki-top-actions">
+              <button type="button" className="ip-pill" onClick={copyIP} title="Adresi kopyala" aria-label="Sunucu IP kopyala">
+                <svg className="ip-pill__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 17V7a2 2 0 012-2h6l4 4v8a2 2 0 01-2 2H6a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M10 5v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <path d="M8 13h.01M12 13h.01M16 13h.01M8 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                <span className="ip-pill__text">play.averneth.net</span>
+              </button>
+              <Link href="/auth" className="header-profile" title="Hesabım">
+                <span className="header-profile__avatar-box">
+                  <img
+                    src={headerAvatarUrl}
+                    alt="Profil"
+                    className="header-profile__img"
+                    width={36}
+                    height={36}
+                    onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve'; }}
+                  />
+                </span>
+                <span className="header-balance">{Math.floor(balance || 0)} ₺</span>
               </Link>
             </div>
           </div>
