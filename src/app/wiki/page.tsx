@@ -255,8 +255,7 @@ export default function WikiPage() {
               <li><a className="nav__link" href="/#magaza">Mağaza</a></li>
               <li><a className="nav__link" href="/#forum">Forum</a></li>
               <li><Link className="nav__link nav__link--active" href="/wiki" aria-current="page">Wiki</Link></li>
-              <li><a className="nav__link" href="/#yardim">Yardım</a></li>
-              <li><a className="nav__link" href="/#destek">Destek</a></li>
+              <li><Link className="nav__link" href="/destek">Destek</Link></li>
               <li><a className="nav__link" href="/#yetkili-basvuru">Yetkili Başvuru</a></li>
             </ul>
           </nav>
@@ -506,7 +505,7 @@ export default function WikiPage() {
             <ul className="footer__links">
               <li><Link href="/">Ana Sayfa</Link></li>
               <li><Link href="/wiki">Wiki</Link></li>
-              <li><a href="/#destek">Destek</a></li>
+              <li><Link href="/destek">Destek</Link></li>
             </ul>
           </div>
         </div>

@@ -143,7 +143,47 @@ CREATE TABLE nlogin (
 DESCRIBE nlogin;
 ```
 
-5. **MySQL'den çıkış yapın:**
+5. **Destek Talebi (Ticket) Sistemi Tablolarını Oluşturun:**
+```sql
+# Destek Talepleri tablosu
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  subject VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  status ENUM('open', 'in_progress', 'resolved', 'closed') DEFAULT 'open',
+  ip_address VARCHAR(100),
+  attachment LONGTEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+# Ticket Mesajları tablosu (yönetici-kullanıcı mesajlaşması)
+CREATE TABLE IF NOT EXISTS ticket_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ticket_id INT NOT NULL,
+  sender VARCHAR(100) NOT NULL,
+  sender_rank VARCHAR(50) DEFAULT 'Oyuncu',
+  sender_avatar VARCHAR(255),
+  content TEXT NOT NULL,
+  is_staff BOOLEAN DEFAULT FALSE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (ticket_id) REFERENCES support_tickets(id) ON DELETE CASCADE,
+  INDEX idx_ticket_id (ticket_id),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+# Tabloları kontrol edin
+SHOW TABLES;
+DESCRIBE support_tickets;
+DESCRIBE ticket_messages;
+```
+
+6. **MySQL'den çıkış yapın:**
 ```sql
 EXIT;
 ```
@@ -307,6 +347,48 @@ CREATE TABLE nlogin (
 CREATE INDEX idx_rank_balance ON nlogin(rank, balance);
 CREATE INDEX idx_last_login_ip ON nlogin(last_seen, last_ip);
 ```
+
+### Destek Talebi (Ticket) Sistemi Tabloları
+
+Destek talebi sistemi için aşağıdaki tablolar otomatik olarak oluşturulur:
+
+**support_tickets** - Ana destek talepleri tablosu:
+```sql
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,           -- Kullanıcı adı
+  email VARCHAR(255) NOT NULL,          -- Kullanıcı e-postası
+  category VARCHAR(100) NOT NULL,       -- Kategori (Teknik Sorun, Hile Şikayeti, vb.)
+  subject VARCHAR(255) NOT NULL,      -- Konu başlığı
+  message TEXT NOT NULL,                -- Açıklama mesajı
+  status ENUM('open', 'in_progress', 'resolved', 'closed') DEFAULT 'open',
+  ip_address VARCHAR(100),              -- IP adresi
+  attachment LONGTEXT,                  -- Ek dosya (base64, opsiyonel)
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**ticket_messages** - Ticket mesajlaşma tablosu:
+```sql
+CREATE TABLE IF NOT EXISTS ticket_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ticket_id INT NOT NULL,               -- İlişkili ticket ID
+  sender VARCHAR(100) NOT NULL,         -- Mesaj gönderen
+  sender_rank VARCHAR(50) DEFAULT 'Oyuncu',
+  sender_avatar VARCHAR(255),           -- Avatar URL
+  content TEXT NOT NULL,                -- Mesaj içeriği
+  is_staff BOOLEAN DEFAULT FALSE,       -- Yetkili mesajı mı?
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (ticket_id) REFERENCES support_tickets(id) ON DELETE CASCADE,
+  INDEX idx_ticket_id (ticket_id),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Not:** Bu tablolar API ilk çalıştığında otomatik olarak oluşturulur. Manuel oluşturmanıza gerek yoktur.
 
 **Örnek veri ekleme (test için):**
 ```sql

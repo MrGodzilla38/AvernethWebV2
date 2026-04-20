@@ -76,8 +76,7 @@ export default function Home() {
               <li><a className="nav__link" href="#magaza">Mağaza</a></li>
               <li><a className="nav__link" href="#forum">Forum</a></li>
               <li><Link className="nav__link" href="/wiki">Wiki</Link></li>
-              <li><a className="nav__link" href="#yardim">Yardım</a></li>
-              <li><a className="nav__link" href="#destek">Destek</a></li>
+              <li><Link className="nav__link" href="/destek">Destek</Link></li>
               <li><a className="nav__link" href="#yetkili-basvuru">Yetkili Başvuru</a></li>
             </ul>
           </nav>
@@ -256,11 +255,7 @@ export default function Home() {
               <span className="quick-tile__label">Forum</span>
               <span className="quick-tile__hint">Topluluk ve rehberler</span>
             </a>
-            <a className="quick-tile" id="yardim" href="#">
-              <span className="quick-tile__label">Yardım</span>
-              <span className="quick-tile__hint">SSS ve dokümantasyon</span>
-            </a>
-            <a className="quick-tile" id="destek" href="#">
+            <a className="quick-tile" id="destek" href="/destek">
               <span className="quick-tile__label">Destek</span>
               <span className="quick-tile__hint">Bilet ve iletişim</span>
             </a>
@@ -312,8 +307,7 @@ export default function Home() {
               <li><a href="#anasayfa">Ana Sayfa</a></li>
               <li><a href="#magaza">Mağaza</a></li>
               <li><a href="#forum">Forum</a></li>
-              <li><a href="#yardim">Yardım</a></li>
-              <li><a href="#destek">Destek</a></li>
+              <li><a href="/destek">Destek</a></li>
             </ul>
           </div>
           <div>

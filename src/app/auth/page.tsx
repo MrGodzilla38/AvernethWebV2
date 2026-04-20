@@ -17,6 +17,9 @@ function AuthPageContent() {
   const [registerForm, setRegisterForm] = useState({ username: '', password: '', confirmPassword: '', email: '' });
   const [loginMessage, setLoginMessage] = useState('');
   const [registerMessage, setRegisterMessage] = useState('');
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [replyText, setReplyText] = useState<string>('');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -38,6 +41,7 @@ function AuthPageContent() {
           setBalance(data.balance || 0);
           setHeaderAvatarUrl(`https://mc-heads.net/avatar/${data.username}/40`);
           loadMinecraftAvatar(data.username);
+          loadUserTickets();
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -54,6 +58,62 @@ function AuthPageContent() {
       }
     }
   }, [searchParams]);
+
+  // Ticket modal açıkken otomatik yenileme (polling)
+  useEffect(() => {
+    if (!selectedTicket) return;
+    
+    const intervalId = setInterval(() => {
+      refreshTicketMessages();
+    }, 3000); // Her 3 saniyede bir yenile
+    
+    return () => clearInterval(intervalId);
+  }, [selectedTicket?.id]);
+
+  const refreshTicketMessages = async () => {
+    if (!selectedTicket) return;
+    
+    try {
+      const response = await fetch('/api/user/tickets', { credentials: 'include' });
+      const data = await response.json();
+      
+      if (data.ok && data.tickets) {
+        // Tüm tickets'i güncelle
+        setTickets(data.tickets);
+        
+        // Seçili ticket'i bul ve güncelle
+        const updatedTicket = data.tickets.find((t: any) => t.id === selectedTicket.id);
+        if (updatedTicket) {
+          // Yeni mesaj var mı kontrol et
+          const currentMsgCount = selectedTicket.messages?.length || 0;
+          const newMsgCount = updatedTicket.messages?.length || 0;
+          
+          if (newMsgCount > currentMsgCount) {
+            // Yeni mesaj geldi!
+            setSelectedTicket(updatedTicket);
+            
+            // Bildirim göster (ilk açılışta değil, sadece yeni mesaj geldiğinde)
+            if (currentMsgCount > 0) {
+              showToast('Yeni mesaj!');
+              
+              // Scroll to bottom
+              setTimeout(() => {
+                const chatThread = document.querySelector('.chat-thread');
+                if (chatThread) {
+                  chatThread.scrollTop = chatThread.scrollHeight;
+                }
+              }, 50);
+            }
+          } else {
+            // Sadece state güncelle (durum değişikliği vs. için)
+            setSelectedTicket(updatedTicket);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh tickets:', error);
+    }
+  };
 
 const loadMinecraftAvatar = (username: string) => {
   setAvatarUrl(`https://mc-heads.net/avatar/${username}/80`);
@@ -153,6 +213,87 @@ const loadMinecraftAvatar = (username: string) => {
     }
   };
 
+  const loadUserTickets = async () => {
+    try {
+      const response = await fetch('/api/user/tickets', { credentials: 'include' });
+      const data = await response.json();
+      if (data.ok) {
+        setTickets(data.tickets || []);
+      }
+    } catch (error) {
+      console.error('Failed to load tickets:', error);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, { class: string; label: string }> = {
+      'open': { class: 'status-badge--open', label: 'Açık' },
+      'in_progress': { class: 'status-badge--progress', label: 'İşlemde' },
+      'resolved': { class: 'status-badge--resolved', label: 'Çözüldü' },
+      'closed': { class: 'status-badge--closed', label: 'Kapalı' }
+    };
+    const statusInfo = statusMap[status] || { class: 'status-badge--open', label: 'Açık' };
+    return <span className={`ticket-status ${statusInfo.class}`}>{statusInfo.label}</span>;
+  };
+
+  const sendReply = async () => {
+    if (!selectedTicket || !replyText.trim()) return;
+    
+    try {
+      const response = await fetch(`/api/user/tickets/${selectedTicket.id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ content: replyText.trim() })
+      });
+      
+      const data = await response.json();
+      if (data.ok) {
+        // Yeni mesaj objesi oluştur
+        const newMessage = {
+          id: data.messageId,
+          sender: user?.username,
+          senderRank: 'Oyuncu',
+          senderAvatar: user?.username,
+          content: replyText.trim(),
+          createdAt: new Date().toISOString(),
+          isStaff: false
+        };
+        
+        // Mevcut mesajlar array'ini kopyala ve yeni mesajı ekle
+        const currentMessages = selectedTicket.messages || [];
+        const updatedMessages = [...currentMessages, newMessage];
+        
+        // tickets array'ini güncelle
+        const updatedTickets = tickets.map(t => 
+          t.id === selectedTicket.id 
+            ? { ...t, messages: updatedMessages }
+            : t
+        );
+        
+        // State'leri güncelle
+        setTickets(updatedTickets);
+        setSelectedTicket((prev: any) => prev ? ({ ...prev, messages: updatedMessages }) : null);
+        setReplyText('');
+        
+        // Chat thread'i en alta scroll yap
+        setTimeout(() => {
+          const chatThread = document.querySelector('.chat-thread');
+          if (chatThread) {
+            chatThread.scrollTop = chatThread.scrollHeight;
+          }
+        }, 50);
+        
+        showToast('Mesajınız gönderildi!');
+      } else {
+        showToast(data.error || 'Mesaj gönderilemedi!');
+      }
+    } catch (error) {
+      console.error('Failed to send reply:', error);
+      showToast('Mesaj gönderilemedi!');
+    }
+  };
+
   const togglePasswordVisibility = (field: 'login' | 'register' | 'confirm') => {
     if (field === 'login') {
       setShowLoginPassword(!showLoginPassword);
@@ -217,8 +358,7 @@ const loadMinecraftAvatar = (username: string) => {
                 <li><a className="nav__link" href="/#magaza">Mağaza</a></li>
                 <li><a className="nav__link" href="/#forum">Forum</a></li>
                 <li><Link className="nav__link" href="/wiki">Wiki</Link></li>
-                <li><a className="nav__link" href="/#yardim">Yardım</a></li>
-                <li><a className="nav__link" href="/#destek">Destek</a></li>
+                <li><Link className="nav__link" href="/destek">Destek</Link></li>
                 <li><a className="nav__link" href="/#yetkili-basvuru">Yetkili Başvuru</a></li>
               </ul>
             </nav>
@@ -343,8 +483,145 @@ const loadMinecraftAvatar = (username: string) => {
 
               <section className="dashboard-section">
                 <h3 className="dashboard-section__title">Destek Talepleri</h3>
-                <div className="empty-state">Veri bulunamadı!</div>
+                {tickets.length === 0 ? (
+                  <div className="empty-state">Henüz destek talebi bulunmuyor.</div>
+                ) : (
+                  <div className="tickets-list">
+                    {tickets.map((ticket) => (
+                      <div key={ticket.id} className={`ticket-card ticket-card--${ticket.status}`}>
+                        <div className="ticket-card__header">
+                          <div className="ticket-card__info">
+                            <span className="ticket-card__id">#{ticket.id}</span>
+                            <span className="ticket-card__category">{ticket.category}</span>
+                          </div>
+                          {getStatusBadge(ticket.status)}
+                        </div>
+                        <div className="ticket-card__subject">{ticket.subject}</div>
+                        <div className="ticket-card__preview">{ticket.message.substring(0, 100)}{ticket.message.length > 100 ? '...' : ''}</div>
+                        <div className="ticket-card__footer">
+                          <span className="ticket-card__date">{new Date(ticket.createdAt).toLocaleDateString('tr-TR')}</span>
+                          <button 
+                            onClick={() => setSelectedTicket(ticket)}
+                            className="btn btn--primary btn--xs"
+                          >
+                            Görüntüle
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </section>
+
+              {/* Ticket Detail Modal */}
+              {selectedTicket && (
+                <div className="modal-overlay" onClick={() => setSelectedTicket(null)}>
+                  <div className="modal modal--chat" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal__header">
+                      <div className="ticket-detail__header-info">
+                        <h3 className="modal__title">Destek Talebi #{selectedTicket.id}</h3>
+                        <div className="ticket-detail__meta">
+                          <span className="category-badge">{selectedTicket.category}</span>
+                          {getStatusBadge(selectedTicket.status)}
+                        </div>
+                      </div>
+                      <button onClick={() => setSelectedTicket(null)} className="modal__close">×</button>
+                    </div>
+                    <div className="modal__body modal__body--chat">
+                      <div className="ticket-detail__subject">
+                        <strong>Konu:</strong> {selectedTicket.subject}
+                      </div>
+                      <div className="chat-thread">
+                        <div className="chat-message chat-message--user">
+                          <div className="chat-message__avatar">
+                            <img src={`/mcavatar?username=${encodeURIComponent(selectedTicket.name)}`} alt="" width={36} height={36} />
+                          </div>
+                          <div className="chat-message__content">
+                            <div className="chat-message__header">
+                              <span className="chat-message__author">{selectedTicket.name}</span>
+                              <span className="chat-message__rank user-rank">Oyuncu</span>
+                              <span className="chat-message__time">{new Date(selectedTicket.createdAt).toLocaleString('tr-TR')}</span>
+                            </div>
+                            <div className="chat-message__text">{selectedTicket.message}</div>
+                            {selectedTicket.attachment && (() => {
+                              try {
+                                const att = JSON.parse(selectedTicket.attachment);
+                                // Yeni 'data' field'ı veya eski 'base64' field'ı
+                                const base64Data = att.data || att.base64;
+                                if (base64Data && base64Data.length > 100) {
+                                  return (
+                                    <div className="chat-message__attachment">
+                                      <a href={`data:${att.type || 'image/jpeg'};base64,${base64Data}`} target="_blank" rel="noopener noreferrer" className="attachment-link">
+                                        <img src={`data:${att.type || 'image/jpeg'};base64,${base64Data}`} alt={att.name || 'Ek'} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                                        <span className="attachment-name">{att.name}</span>
+                                      </a>
+                                    </div>
+                                  );
+                                }
+                              } catch (e) {
+                                console.error('Attachment parse error:', e);
+                              }
+                              return null;
+                            })()}
+                          </div>
+                        </div>
+                        {selectedTicket.messages && selectedTicket.messages.map((msg: any) => (
+                          <div key={msg.id} className={`chat-message ${msg.isStaff ? 'chat-message--staff' : 'chat-message--user'}`}>
+                            <div className="chat-message__avatar">
+                              <img src={`/mcavatar?username=${encodeURIComponent(msg.senderAvatar)}`} alt="" width={36} height={36} />
+                            </div>
+                            <div className="chat-message__content">
+                              <div className="chat-message__header">
+                                <span className="chat-message__author">{msg.sender}</span>
+                                {msg.isStaff && <span className="chat-message__rank staff-rank">{msg.senderRank}</span>}
+                                {!msg.isStaff && <span className="chat-message__rank user-rank">Oyuncu</span>}
+                                <span className="chat-message__time">{new Date(msg.createdAt).toLocaleString('tr-TR')}</span>
+                              </div>
+                              <div className="chat-message__text">{msg.content}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="ticket-detail__meta-footer">
+                        <span>IP: {selectedTicket.ip}</span>
+                        <span>Talep No: #{selectedTicket.id}</span>
+                      </div>
+                    </div>
+                    {selectedTicket.status !== 'resolved' && selectedTicket.status !== 'closed' ? (
+                      <div className="chat-reply">
+                        <div className="chat-reply__header">
+                          <span className="chat-reply__label">Mesaj gönder</span>
+                        </div>
+                        <textarea
+                          className="chat-reply__input"
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          placeholder="Mesajınızı yazın..."
+                          rows={3}
+                        />
+                        <div className="chat-reply__actions">
+                          <button onClick={() => { setSelectedTicket(null); setReplyText(''); }} className="btn btn--ghost">Kapat</button>
+                          <button 
+                            onClick={sendReply} 
+                            disabled={!replyText.trim()}
+                            className="btn btn--primary"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{marginRight: '0.5rem'}}>
+                              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Gönder
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="modal__footer">
+                        <button onClick={() => setSelectedTicket(null)} className="btn btn--ghost">Kapat</button>
+                        <span className="ticket-status-hint">Bu talep {selectedTicket.status === 'resolved' ? 'çözüldü' : 'kapandı'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <section className="dashboard-section">
                 <h3 className="dashboard-section__title">Kredi Geçmişi</h3>
@@ -389,7 +666,7 @@ const loadMinecraftAvatar = (username: string) => {
               <ul className="footer__links">
                 <li><Link href="/">Ana Sayfa</Link></li>
                 <li><a href="/wiki">Wiki</a></li>
-                <li><a href="#destek">Destek</a></li>
+                <li><Link href="/destek">Destek</Link></li>
               </ul>
             </div>
           </div>
@@ -417,8 +694,7 @@ const loadMinecraftAvatar = (username: string) => {
               <li><a className="nav__link" href="#magaza">Mağaza</a></li>
               <li><a className="nav__link" href="#forum">Forum</a></li>
               <li><a className="nav__link" href="/wiki">Wiki</a></li>
-              <li><a className="nav__link" href="#yardim">Yardım</a></li>
-              <li><a className="nav__link" href="#destek">Destek</a></li>
+              <li><Link className="nav__link" href="/destek">Destek</Link></li>
               <li><a className="nav__link" href="#yetkili-basvuru">Yetkili Başvuru</a></li>
             </ul>
           </nav>
@@ -644,7 +920,7 @@ const loadMinecraftAvatar = (username: string) => {
             <ul className="footer__links">
               <li><Link href="/">Ana Sayfa</Link></li>
               <li><a href="/wiki">Wiki</a></li>
-              <li><a href="#destek">Destek</a></li>
+              <li><Link href="/destek">Destek</Link></li>
             </ul>
           </div>
         </div>

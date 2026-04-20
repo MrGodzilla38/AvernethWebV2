@@ -6,7 +6,7 @@
 if [ $# -ne 2 ]; then
     echo "Kullaným: $0 <kullanici_adi> <yeni_rol>"
     echo "Örnek: $0 UstaGodzilla Admin"
-    echo "Mevcut roller: Oyuncu, Admin, Kurucu, Moderator, VIP"
+    echo "Mevcut roller: Kurucu, Admin, Developer, Moderator, Rehber, Mimar"
     exit 1
 fi
 
@@ -17,7 +17,7 @@ NEW_ROLE=$2
 MYSQL_PASSWORD="Averneth123!"
 
 # Geçerli roller listesi
-VALID_ROLES=("Oyuncu" "Admin" "Kurucu" "Moderator" "VIP")
+VALID_ROLES=("Kurucu" "Admin" "Developer" "Moderator" "Rehber" "Mimar")
 
 # Rol validasyonu
 if [[ ! " ${VALID_ROLES[@]} " =~ " ${NEW_ROLE} " ]]; then

@@ -680,3 +680,451 @@
   color: var(--purple-300);
   font-size: 0.85rem;
 }
+
+/* Destek Talepleri - Ticket Cards */
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ticket-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+  border-left: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ticket-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ticket-card--open {
+  border-left-color: #ef4444;
+}
+
+.ticket-card--in_progress {
+  border-left-color: #f59e0b;
+}
+
+.ticket-card--resolved {
+  border-left-color: #10b981;
+}
+
+.ticket-card--closed {
+  border-left-color: var(--silver-400);
+}
+
+.ticket-card__info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ticket-card__id {
+  font-weight: 600;
+  color: var(--purple-300);
+  font-size: 0.8rem;
+  min-width: 2rem;
+}
+
+.ticket-card__category {
+  padding: 0.15rem 0.4rem;
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--purple-300);
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ticket-card__subject {
+  font-weight: 500;
+  color: var(--silver-100);
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-card__date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ticket-status {
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ticket-card .btn--xs {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+/* Hide preview on compact cards */
+.ticket-card__preview {
+  display: none;
+}
+
+.ticket-card__header,
+.ticket-card__footer {
+  display: contents;
+}
+
+.status-badge--open {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-badge--progress {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-badge--resolved {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge--closed {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--silver-400);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.ticket-card__subject {
+  font-weight: 600;
+  color: var(--silver-100);
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.ticket-card__preview {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.ticket-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ticket-card__date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Chat Styles for User Profile */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal--chat {
+  max-width: 700px;
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal__close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.modal__close:hover {
+  background: var(--bg-elevated);
+  color: var(--silver-100);
+}
+
+.modal__body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal__body--chat {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal__footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.ticket-detail__header-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.ticket-detail__meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.category-badge {
+  padding: 0.25rem 0.5rem;
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--purple-300);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ticket-detail__subject {
+  padding: 1rem 1.5rem;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+
+.ticket-detail__subject strong {
+  color: var(--purple-300);
+}
+
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.chat-message {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 90%;
+}
+
+.chat-message--user {
+  align-self: flex-start;
+}
+
+.chat-message--staff {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-message__avatar img {
+  border-radius: var(--radius-sm);
+  image-rendering: pixelated;
+}
+
+.chat-message__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: var(--bg-elevated);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.chat-message--staff .chat-message__content {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+.chat-message__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chat-message__author {
+  font-weight: 600;
+  color: var(--silver-100);
+  font-size: 0.9rem;
+}
+
+.chat-message__rank {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.staff-rank {
+  background: rgba(124, 58, 237, 0.25);
+  color: var(--purple-300);
+}
+
+.user-rank {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.chat-message__time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.chat-message--staff .chat-message__time {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.chat-message__text {
+  color: var(--text);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+
+.chat-message__attachment {
+  margin-top: 0.5rem;
+}
+
+.chat-message__attachment img {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.attachment-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.attachment-link:hover img {
+  border-color: var(--purple-500);
+}
+
+.attachment-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.ticket-detail__meta-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ticket-status-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* Chat Reply Section */
+.chat-reply {
+  padding: 1rem 1.5rem;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+}
+
+.chat-reply__header {
+  margin-bottom: 0.75rem;
+}
+
+.chat-reply__label {
+  font-weight: 600;
+  color: var(--silver-100);
+  font-size: 0.9rem;
+}
+
+.chat-reply__input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.9rem;
+  resize: vertical;
+  margin-bottom: 0.75rem;
+}
+
+.chat-reply__input:focus {
+  outline: none;
+  border-color: var(--purple-500);
+}
+
+.chat-reply__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Button sizes */
+.btn--xs {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+}
