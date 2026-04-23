@@ -699,209 +699,234 @@ const loadMinecraftAvatar = (username: string) => {
             </ul>
           </nav>
           <div className="topbar__actions wiki-top-actions">
-            <button type="button" className="ip-pill" onClick={copyIP} title="Adresi kopyala" aria-label="Sunucu IP kopyala">
-              <svg className="ip-pill__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 17V7a2 2 0 012-2h6l4 4v8a2 2 0 01-2 2H6a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M10 5v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M8 13h.01M12 13h.01M16 13h.01M8 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-              <span className="ip-pill__text">play.averneth.net</span>
-            </button>
-            <Link className="btn btn--ghost" href="#giris">Giriş Yap</Link>
-            <Link className="btn btn--primary" href="#kayit">Kayıt Ol</Link>
+            <div className="auth-btn-group">
+              <Link className="auth-btn-group__btn" href="#giris">Giriş Yap</Link>
+              <span className="auth-btn-group__divider" />
+              <Link className="auth-btn-group__btn auth-btn-group__btn--primary" href="#kayit">Kayıt Ol</Link>
+              <div className="auth-btn-group__glow" />
+            </div>
           </div>
         </div>
       </header>
 
       <main className="auth-main">
-        <div className="container auth-layout" id="auth-guest-view">
-          <div className="auth-hero">
-            <h1 className="auth-hero__title">Hesap</h1>
+        <div className="auth-bg-overlay"></div>
+        <div className="auth-center">
+          <div className="auth-brand">
+            <h1 className="auth-brand__title">AVERNETH</h1>
+            <p className="auth-brand__sub">Premium MMORPG Minecraft Deneyimi</p>
           </div>
 
-          <div className="auth-forms">
-            <div id="giris" className="auth-card" tabIndex={-1}>
-              <h2 className="auth-card__title">Giriş</h2>
-              <form onSubmit={handleLogin} className="auth-form" autoComplete="on">
-                <div className="auth-field">
-                  <label htmlFor="login-user">Oyuncu adı</label>
-                  <input 
-                    id="login-user" 
-                    name="username" 
-                    type="text" 
-                    required 
-                    minLength={3} 
-                    maxLength={16} 
-                    pattern="[a-zA-Z0-9_]{3,16}" 
-                    autoComplete="username"
-                    value={loginForm.username}
-                    onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
-                  />
-                </div>
-                <div className="auth-field">
-                  <label htmlFor="login-pass">Şifre</label>
-                  <div className="password-input-wrapper">
-                    <input 
-                      id="login-pass" 
-                      name="password" 
-                      type={showLoginPassword ? "text" : "password"} 
-                      required 
-                      autoComplete="current-password"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                    />
-                    <button 
-                      type="button" 
-                      className="password-toggle" 
-                      aria-label={showLoginPassword ? "Şifreyi gizle" : "Şifreyi göster"}
-                      onClick={() => togglePasswordVisibility('login')}
-                    >
-                      <svg className="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path className="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" style={{display: showLoginPassword ? 'block' : 'none'}} />
-                        <circle className="eye-open" cx="12" cy="12" r="3" style={{display: showLoginPassword ? 'block' : 'none'}} />
-                        <g className="eye-closed" style={{display: showLoginPassword ? 'none' : 'block'}}>
-                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                          <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2"/>
-                        </g>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <p className="auth-hint">Şifre uzunluğu sunucu ayarıyla uyumludur (genelde 5–32 karakter).</p>
-                <div className="auth-actions">
-                  <button type="submit" className="btn btn--primary">Giriş yap</button>
-                </div>
-                {loginMessage && (
-                <div id="msg-login" className={`auth-msg ${getMessageType(loginMessage)}`} role="alert">
-                  <div className="auth-msg__icon">
-                    {getMessageType(loginMessage) === 'auth-msg--ok' && '✓'}
-                    {getMessageType(loginMessage) === 'auth-msg--err' && '✕'}
-                    {getMessageType(loginMessage) === 'auth-msg--info' && 'ⓘ'}
-                  </div>
-                  <span className="auth-msg__text">{loginMessage}</span>
-                </div>
-              )}
-              </form>
-            </div>
+          <div className="auth-tabs">
+            <button
+              className="auth-tab active"
+              id="tab-giris"
+              onClick={() => {
+                const panels = document.querySelectorAll('.auth-panel');
+                const tabs = document.querySelectorAll('.auth-tab');
+                panels.forEach(p => p.classList.remove('active'));
+                tabs.forEach(t => t.classList.remove('active'));
+                document.getElementById('panel-giris')?.classList.add('active');
+                document.getElementById('tab-giris')?.classList.add('active');
+              }}
+            >
+              Giriş Yap
+            </button>
+            <button
+              className="auth-tab"
+              id="tab-kayit"
+              onClick={() => {
+                const panels = document.querySelectorAll('.auth-panel');
+                const tabs = document.querySelectorAll('.auth-tab');
+                panels.forEach(p => p.classList.remove('active'));
+                tabs.forEach(t => t.classList.remove('active'));
+                document.getElementById('panel-kayit')?.classList.add('active');
+                document.getElementById('tab-kayit')?.classList.add('active');
+              }}
+            >
+              Kayıt Ol
+            </button>
+          </div>
 
-            <div id="kayit" className="auth-card" tabIndex={-1}>
-              <h2 className="auth-card__title">Kayıt</h2>
-              <form onSubmit={handleRegister} className="auth-form" autoComplete="on">
-                <div className="auth-field">
-                  <label htmlFor="reg-user">Oyuncu adı</label>
+          <div id="panel-giris" className="auth-panel active">
+            <form onSubmit={handleLogin} className="auth-form" autoComplete="on">
+              <div className="auth-field">
+                <label htmlFor="login-user">Oyuncu adı</label>
+                <input 
+                  id="login-user" 
+                  name="username" 
+                  type="text" 
+                  required 
+                  minLength={3} 
+                  maxLength={16} 
+                  pattern="[a-zA-Z0-9_]{3,16}" 
+                  autoComplete="username"
+                  value={loginForm.username}
+                  onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="login-pass">Şifre</label>
+                <div className="password-input-wrapper">
                   <input 
-                    id="reg-user" 
-                    name="username" 
-                    type="text" 
+                    id="login-pass" 
+                    name="password" 
+                    type={showLoginPassword ? "text" : "password"} 
                     required 
-                    minLength={3} 
-                    maxLength={16} 
-                    pattern="[a-zA-Z0-9_]{3,16}" 
-                    autoComplete="username"
-                    value={registerForm.username}
-                    onChange={(e) => setRegisterForm({...registerForm, username: e.target.value})}
+                    autoComplete="current-password"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
                   />
+                  <button 
+                    type="button" 
+                    className="password-toggle" 
+                    aria-label={showLoginPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+                    onClick={() => togglePasswordVisibility('login')}
+                  >
+                    <svg className="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path className="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" style={{display: showLoginPassword ? 'block' : 'none'}} />
+                      <circle className="eye-open" cx="12" cy="12" r="3" style={{display: showLoginPassword ? 'block' : 'none'}} />
+                      <g className="eye-closed" style={{display: showLoginPassword ? 'none' : 'block'}}>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2"/>
+                      </g>
+                    </svg>
+                  </button>
                 </div>
-                <div className="auth-field">
-                  <label htmlFor="reg-pass">Şifre</label>
-                  <div className="password-input-wrapper">
-                    <input 
-                      id="reg-pass" 
-                      name="password" 
-                      type={showRegisterPassword ? "text" : "password"} 
-                      required 
-                      minLength={5} 
-                      maxLength={32} 
-                      autoComplete="new-password"
-                      value={registerForm.password}
-                      onChange={(e) => {
-                        setRegisterForm({...registerForm, password: e.target.value});
-                        if (registerForm.confirmPassword) {
-                          validatePasswordMatch();
-                        }
-                      }}
-                    />
-                    <button 
-                      type="button" 
-                      className="password-toggle" 
-                      aria-label={showRegisterPassword ? "Şifreyi gizle" : "Şifreyi göster"}
-                      onClick={() => togglePasswordVisibility('register')}
-                    >
-                      <svg className="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path className="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" style={{display: showRegisterPassword ? 'block' : 'none'}} />
-                        <circle className="eye-open" cx="12" cy="12" r="3" style={{display: showRegisterPassword ? 'block' : 'none'}} />
-                        <g className="eye-closed" style={{display: showRegisterPassword ? 'none' : 'block'}}>
-                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                          <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2"/>
-                        </g>
-                      </svg>
-                    </button>
-                  </div>
+              </div>
+              <p className="auth-hint">Şifre uzunluğu sunucu ayarıyla uyumludur (genelde 5–32 karakter).</p>
+              <div className="auth-actions">
+                <button type="submit" className="btn btn--primary">Giriş yap</button>
+              </div>
+              {loginMessage && (
+              <div id="msg-login" className={`auth-msg ${getMessageType(loginMessage)}`} role="alert">
+                <div className="auth-msg__icon">
+                  {getMessageType(loginMessage) === 'auth-msg--ok' && '✓'}
+                  {getMessageType(loginMessage) === 'auth-msg--err' && '✕'}
+                  {getMessageType(loginMessage) === 'auth-msg--info' && 'ⓘ'}
                 </div>
-                <div className="auth-field">
-                  <label htmlFor="reg-pass-confirm">Şifre Onay</label>
-                  <div className="password-input-wrapper">
-                    <input 
-                      id="reg-pass-confirm" 
-                      type={showConfirmPassword ? "text" : "password"} 
-                      required 
-                      minLength={5} 
-                      maxLength={32} 
-                      autoComplete="new-password"
-                      value={registerForm.confirmPassword}
-                      onChange={(e) => {
-                        setRegisterForm({...registerForm, confirmPassword: e.target.value});
+                <span className="auth-msg__text">{loginMessage}</span>
+              </div>
+            )}
+            </form>
+          </div>
+
+          <div id="panel-kayit" className="auth-panel">
+            <form onSubmit={handleRegister} className="auth-form" autoComplete="on">
+              <div className="auth-field">
+                <label htmlFor="reg-user">Oyuncu adı</label>
+                <input 
+                  id="reg-user" 
+                  name="username" 
+                  type="text" 
+                  required 
+                  minLength={3} 
+                  maxLength={16} 
+                  pattern="[a-zA-Z0-9_]{3,16}" 
+                  autoComplete="username"
+                  value={registerForm.username}
+                  onChange={(e) => setRegisterForm({...registerForm, username: e.target.value})}
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="reg-pass">Şifre</label>
+                <div className="password-input-wrapper">
+                  <input 
+                    id="reg-pass" 
+                    name="password" 
+                    type={showRegisterPassword ? "text" : "password"} 
+                    required 
+                    minLength={5} 
+                    maxLength={32} 
+                    autoComplete="new-password"
+                    value={registerForm.password}
+                    onChange={(e) => {
+                      setRegisterForm({...registerForm, password: e.target.value});
+                      if (registerForm.confirmPassword) {
                         validatePasswordMatch();
-                      }}
-                    />
-                    <button 
-                      type="button" 
-                      className="password-toggle" 
-                      aria-label={showConfirmPassword ? "Şifreyi gizle" : "Şifreyi göster"}
-                      onClick={() => togglePasswordVisibility('confirm')}
-                    >
-                      <svg className="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path className="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" style={{display: showConfirmPassword ? 'block' : 'none'}} />
-                        <circle className="eye-open" cx="12" cy="12" r="3" style={{display: showConfirmPassword ? 'block' : 'none'}} />
-                        <g className="eye-closed" style={{display: showConfirmPassword ? 'none' : 'block'}}>
-                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                          <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2"/>
-                        </g>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="auth-field">
-                  <label htmlFor="reg-email">E-posta</label>
-                  <input 
-                    id="reg-email" 
-                    name="email" 
-                    type="email" 
-                    required 
-                    maxLength={254} 
-                    autoComplete="email" 
-                    inputMode="email" 
-                    placeholder="ornek@posta.com"
-                    value={registerForm.email}
-                    onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+                      }
+                    }}
                   />
+                  <button 
+                    type="button" 
+                    className="password-toggle" 
+                    aria-label={showRegisterPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+                    onClick={() => togglePasswordVisibility('register')}
+                  >
+                    <svg className="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path className="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" style={{display: showRegisterPassword ? 'block' : 'none'}} />
+                      <circle className="eye-open" cx="12" cy="12" r="3" style={{display: showRegisterPassword ? 'block' : 'none'}} />
+                      <g className="eye-closed" style={{display: showRegisterPassword ? 'none' : 'block'}}>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2"/>
+                      </g>
+                    </svg>
+                  </button>
                 </div>
-                <p className="auth-hint">Minecraft kullanıcı adı kuralları geçerlidir. E-posta nLogin hesabınızda (kurtarma vb.) kullanılır. Kayıttan sonra oyunda aynı bilgilerle oturum açın.</p>
-                <div className="auth-actions">
-                  <button type="submit" className="btn btn--primary">Hesap oluştur</button>
+              </div>
+              <div className="auth-field">
+                <label htmlFor="reg-pass-confirm">Şifre Onay</label>
+                <div className="password-input-wrapper">
+                  <input 
+                    id="reg-pass-confirm" 
+                    type={showConfirmPassword ? "text" : "password"} 
+                    required 
+                    minLength={5} 
+                    maxLength={32} 
+                    autoComplete="new-password"
+                    value={registerForm.confirmPassword}
+                    onChange={(e) => {
+                      setRegisterForm({...registerForm, confirmPassword: e.target.value});
+                      validatePasswordMatch();
+                    }}
+                  />
+                  <button 
+                    type="button" 
+                    className="password-toggle" 
+                    aria-label={showConfirmPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+                    onClick={() => togglePasswordVisibility('confirm')}
+                  >
+                    <svg className="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path className="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" style={{display: showConfirmPassword ? 'block' : 'none'}} />
+                      <circle className="eye-open" cx="12" cy="12" r="3" style={{display: showConfirmPassword ? 'block' : 'none'}} />
+                      <g className="eye-closed" style={{display: showConfirmPassword ? 'none' : 'block'}}>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2"/>
+                      </g>
+                    </svg>
+                  </button>
                 </div>
-                {registerMessage && (
-                <div id="msg-register" className={`auth-msg ${getMessageType(registerMessage)}`} role="alert">
-                  <div className="auth-msg__icon">
-                    {getMessageType(registerMessage) === 'auth-msg--ok' && '✓'}
-                    {getMessageType(registerMessage) === 'auth-msg--err' && '✕'}
-                    {getMessageType(registerMessage) === 'auth-msg--info' && 'ⓘ'}
-                  </div>
-                  <span className="auth-msg__text">{registerMessage}</span>
+              </div>
+              <div className="auth-field">
+                <label htmlFor="reg-email">E-posta</label>
+                <input 
+                  id="reg-email" 
+                  name="email" 
+                  type="email" 
+                  required 
+                  maxLength={254} 
+                  autoComplete="email" 
+                  inputMode="email" 
+                  placeholder="ornek@posta.com"
+                  value={registerForm.email}
+                  onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+                />
+              </div>
+              <p className="auth-hint">Minecraft kullanıcı adı kuralları geçerlidir. E-posta nLogin hesabınızda (kurtarma vb.) kullanılır. Kayıttan sonra oyunda aynı bilgilerle oturum açın.</p>
+              <div className="auth-actions">
+                <button type="submit" className="btn btn--primary">Hesap oluştur</button>
+              </div>
+              {registerMessage && (
+              <div id="msg-register" className={`auth-msg ${getMessageType(registerMessage)}`} role="alert">
+                <div className="auth-msg__icon">
+                  {getMessageType(registerMessage) === 'auth-msg--ok' && '✓'}
+                  {getMessageType(registerMessage) === 'auth-msg--err' && '✕'}
+                  {getMessageType(registerMessage) === 'auth-msg--info' && 'ⓘ'}
                 </div>
-              )}
-              </form>
-            </div>
+                <span className="auth-msg__text">{registerMessage}</span>
+              </div>
+            )}
+            </form>
           </div>
         </div>
       </main>

@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Kullanici rolü atama scripti
-# Kullaným: ./assign-role.sh <kullanici_adi> <yeni_rol>
+# Kullanım: ./assign-role.sh <kullanici_adi> <yeni_rol>
 
 if [ $# -ne 2 ]; then
-    echo "Kullaným: $0 <kullanici_adi> <yeni_rol>"
+    echo "Kullanım: $0 <kullanici_adi> <yeni_rol>"
     echo "Örnek: $0 UstaGodzilla Admin"
     echo "Mevcut roller: Kurucu, Admin, Developer, Moderator, Rehber, Mimar"
     exit 1
@@ -13,8 +13,8 @@ fi
 USERNAME=$1
 NEW_ROLE=$2
 
-# MySQL þifresi (ayarlarýnýzý deðiþtirin)
-MYSQL_PASSWORD="Averneth123!"
+# MySQL şifresi (ayarlarınızı değiştirin)
+MYSQL_PASSWORD="newpassword123"
 
 # Geçerli roller listesi
 VALID_ROLES=("Kurucu" "Admin" "Developer" "Moderator" "Rehber" "Mimar")
@@ -30,7 +30,7 @@ echo "Kullanıcı: $USERNAME"
 echo "Yeni Rol: $NEW_ROLE"
 echo "------------------------"
 
-# MySQL baðlantý kontrolü
+# MySQL bağlantı kontrolü
 if ! mysql -u root -p"$MYSQL_PASSWORD" -e "USE nLogin;" 2>/dev/null; then
     echo "Hata: MySQL baðlantýsý veya veritabaný eriþimi baþarýsýz"
     exit 1
@@ -40,11 +40,11 @@ fi
 echo "Mevcut rol:"
 mysql -u root -p"$MYSQL_PASSWORD" nLogin -e "SELECT last_name, \`rank\` FROM nlogin WHERE last_name = '$USERNAME';" 2>/dev/null
 
-# Kullanýcýnýn var olup olmadýðýný kontrol et
+# Kullanıcının var olup olmadığını kontrol et
 USER_EXISTS=$(mysql -u root -p"$MYSQL_PASSWORD" nLogin -N -e "SELECT COUNT(*) FROM nlogin WHERE last_name = '$USERNAME';" 2>/dev/null)
 
 if [ "$USER_EXISTS" -eq 0 ]; then
-    echo "Hata: Kullanýcý '$USERNAME' bulunamadý"
+    echo "Hata: Kullanıcı '$USERNAME' bulunamadı"
     exit 1
 fi
 
@@ -57,6 +57,6 @@ if [ $? -eq 0 ]; then
     mysql -u root -p"$MYSQL_PASSWORD" nLogin -e "SELECT last_name, \`rank\` FROM nlogin WHERE last_name = '$USERNAME';" 2>/dev/null
     echo "Rol başarıyla güncellendi!"
 else
-    echo "Hata: Rol güncellenirken bir sorun oluþtu"
+    echo "Hata: Rol güncellenirken bir sorun oluştu"
     exit 1
 fi

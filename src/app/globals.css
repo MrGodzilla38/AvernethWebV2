@@ -242,36 +242,6 @@ a:hover {
   box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
 }
 
-.ip-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 1rem;
-  background: linear-gradient(145deg, rgba(91, 33, 182, 0.5), rgba(30, 27, 75, 0.85));
-  border: 1px solid rgba(167, 139, 250, 0.45);
-  border-radius: var(--radius-pill);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--silver-100);
-  font-family: ui-monospace, "Cascadia Mono", monospace;
-  cursor: pointer;
-  box-shadow: 0 0 24px rgba(124, 58, 237, 0.2);
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
-}
-
-.ip-pill:hover {
-  box-shadow: 0 0 32px rgba(167, 139, 250, 0.35);
-}
-
-.ip-pill:active {
-  transform: scale(0.98);
-}
-
-.ip-pill__icon {
-  flex-shrink: 0;
-  opacity: 0.9;
-}
-
 .btn {
   display: inline-flex;
   align-items: center;

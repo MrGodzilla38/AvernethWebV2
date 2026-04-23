@@ -81,14 +81,6 @@ export default function Home() {
             </ul>
           </nav>
           <div className="topbar__actions wiki-top-actions">
-            <button type="button" className="ip-pill" onClick={copyIP} title="Adresi kopyala" aria-label="Sunucu IP kopyala">
-              <svg className="ip-pill__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 17V7a2 2 0 012-2h6l4 4v8a2 2 0 01-2 2H6a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M10 5v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M8 13h.01M12 13h.01M16 13h.01M8 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-              <span className="ip-pill__text">play.averneth.net</span>
-            </button>
             {isLoggedIn ? (
               <Link href="/auth" className="header-profile" title="Hesabım">
                 <span className="header-profile__avatar-box">
@@ -104,10 +96,11 @@ export default function Home() {
                 <span className="header-balance">{Math.floor(balance)} ₺</span>
               </Link>
             ) : (
-              <>
-                <Link className="btn btn--ghost" href="/auth#giris">Giriş</Link>
-                <Link className="btn btn--primary" href="/auth#kayit">Kayıt</Link>
-              </>
+              <div className="auth-btn-group">
+                <Link className="auth-btn-group__btn" href="/auth#giris">Giriş Yap</Link>
+                <span className="auth-btn-group__divider" />
+                <Link className="auth-btn-group__btn auth-btn-group__btn--primary" href="/auth#kayit">Kayıt Ol</Link>
+              </div>
             )}
           </div>
         </div>

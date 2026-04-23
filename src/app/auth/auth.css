@@ -426,57 +426,142 @@
   }
 }
 
-@media (min-width: 900px) {
-  .auth-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-  }
+/* === YENI AUTH TASARIMI === */
+
+.auth-main {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-image: url('/assets/hero-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-.auth-hero {
-  padding: 1.5rem 0;
+.auth-bg-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(5, 3, 15, 0.85) 0%,
+    rgba(15, 10, 35, 0.80) 50%,
+    rgba(5, 3, 15, 0.90) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
 }
 
-.auth-hero__title {
+.auth-center {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.auth-brand {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-brand__title {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  margin: 0 0 0.75rem;
+  font-size: 2rem;
+  letter-spacing: 0.15em;
   color: var(--silver-100);
-  letter-spacing: 0.04em;
-}
-
-.auth-hero__lead {
   margin: 0;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  max-width: 42ch;
-  line-height: 1.6;
+  text-shadow: 0 0 30px rgba(167, 139, 250, 0.5);
 }
 
-.auth-hero__note {
-  margin: 1.25rem 0 0;
-  padding: 0.85rem 1rem;
-  font-size: 0.82rem;
+.auth-brand__sub {
   color: var(--silver-400);
-  background: rgba(15, 26, 46, 0.65);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  line-height: 1.5;
+  font-size: 0.9rem;
+  margin: 0;
 }
 
-.auth-card {
-  padding: 1.5rem 1.35rem;
-  background: rgba(15, 26, 46, 0.55);
+.auth-tabs {
+  display: flex;
+  width: 100%;
+  background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  scroll-margin-top: 5rem;
+  padding: 4px;
+  gap: 4px;
 }
 
-.auth-card__title {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  margin: 0 0 1rem;
-  color: var(--purple-300);
+.auth-tab {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  color: var(--silver-400);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.auth-tab.active {
+  background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+  color: var(--silver-100);
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.4);
+}
+
+.auth-tab:not(.active):hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--silver-200);
+}
+
+.auth-panel {
+  display: none;
+  width: 100%;
+  background: rgba(10, 8, 25, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.08),
+    0 24px 64px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.auth-panel.active {
+  display: block;
+}
+
+.auth-panel .btn--primary {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+  transition: all 0.2s ease;
+}
+
+.auth-panel .btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+}
+
+@media (max-width: 480px) {
+  .auth-center {
+    max-width: 100%;
+  }
+  .auth-panel {
+    padding: 1.5rem;
+  }
 }
 
 .auth-form {
@@ -542,8 +627,8 @@
 }
 
 .auth-field input:focus {
-  border-color: var(--border-strong);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+  border-color: var(--purple-500);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.18), 0 0 20px rgba(124, 58, 237, 0.1);
 }
 
 .auth-field input::placeholder {
@@ -563,6 +648,15 @@
   gap: 0.75rem;
   align-items: center;
   margin-top: 0.25rem;
+}
+
+.auth-actions .btn--primary {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.auth-actions .btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
 }
 
 .auth-msg {
@@ -1036,6 +1130,106 @@
   line-height: 1.5;
   white-space: pre-wrap;
   font-size: 0.9rem;
+}
+
+.auth-btn-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(10, 8, 25, 0.6);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  overflow: hidden;
+}
+
+/* Dönen neon parlama animasyonu */
+.auth-btn-group::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 999px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    transparent 0deg,
+    rgba(167, 139, 250, 0.9) 60deg,
+    rgba(124, 58, 237, 1) 90deg,
+    rgba(167, 139, 250, 0.9) 120deg,
+    transparent 180deg,
+    transparent 360deg
+  );
+  animation: rotate-glow 3s linear infinite;
+  z-index: -1;
+}
+
+/* İç arka planı koru */
+.auth-btn-group::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 999px;
+  background: rgba(10, 8, 25, 0.85);
+  z-index: -1;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rotate-glow {
+  to {
+    --angle: 360deg;
+  }
+}
+
+.auth-btn-group__btn {
+  position: relative;
+  z-index: 1;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(203, 194, 230, 0.85);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.auth-btn-group__btn:hover {
+  color: #fff;
+  background: rgba(167, 139, 250, 0.1);
+}
+
+.auth-btn-group__btn--primary {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
+}
+
+.auth-btn-group__btn--primary:hover {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.6);
+  transform: translateY(-1px);
+}
+
+.auth-btn-group__divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(167, 139, 250, 0.2);
+  flex-shrink: 0;
+}
+
+/* Eski butonları gizle */
+.wiki-top-actions .btn--ghost,
+.wiki-top-actions .btn--primary {
+  display: none;
 }
 
 .chat-message__attachment {
