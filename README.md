@@ -559,10 +559,10 @@ bash ./scripts/assign-role.sh UstaGodzilla Admin
 
 ## 🌐 API Entegrasyonu
 
-Uygulama, port 3001'de çalışan Averneth API sunucusu ile entegre olur. API route'ları Next.js üzerinden otomatik olarak yönlendirilir:
+Uygulama, port 5001'de çalışan Averneth API sunucusu ile entegre olur. API route'ları Next.js üzerinden otomatik olarak yönlendirilir:
 
 - Frontend port 5000'de çalışır
-- `/api/*` istekleri `http://localhost:3001/api/*`'e yönlendirilir
+- `/api/*` istekleri `http://localhost:5001/api/*`'e yönlendirilir
 
 ## 📱 Responsive Tasarım
 

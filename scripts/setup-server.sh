@@ -87,7 +87,7 @@ server {
 
     # API routes to backend
     location /api/ {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:5001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -141,10 +141,10 @@ fi
 
 # Check if API server is running
 print_status "Checking API server..."
-if curl -f http://localhost:3001 2>/dev/null; then
-    print_status "API server is running on port 3001"
+if curl -f http://localhost:5001 2>/dev/null; then
+    print_status "API server is running on port 5001"
 else
-    print_warning "API server is not running on port 3001. Please start it before deployment."
+    print_warning "API server is not running on port 5001. Please start it before deployment."
 fi
 
 # Open firewall ports if UFW is available

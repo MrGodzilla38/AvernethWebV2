@@ -1,7 +1,7 @@
 # AvernethWebV2 Deployment Guide
 
 ## Server Structure
-- **API Server**: `/opt/averneth-api/` (Node.js/Express on port 3001)
+- **API Server**: `/opt/averneth-api/` (Node.js/Express on port 5001)
 - **Web Frontend**: `/var/www/averneth/` (Static files)
 - **New Next.js App**: `/var/www/AvernethWebV2/` (This project)
 
@@ -71,7 +71,7 @@ server {
 
     # Frontend (Next.js)
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -84,7 +84,7 @@ server {
 
     # API routes to backend
     location /api/ {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:5001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -146,7 +146,7 @@ The application uses these key environment variables (configured in `.env.produc
 
 - **Database**: MySQL connection settings for nLogin database
 - **JWT**: Authentication token configuration
-- **API**: Connection to backend API at localhost:3001
+- **API**: Connection to backend API at localhost:5001
 - **CORS**: Cross-origin settings for production domain
 
 ## Troubleshooting
@@ -169,10 +169,10 @@ mysql -u root -p -e "USE nLogin; SHOW TABLES;"
 ```
 
 ### Port Conflicts
-Ensure ports 3000 (frontend) and 3001 (API) are available:
+Ensure ports 5000 (frontend) and 5001 (API) are available:
 ```bash
-sudo netstat -tlnp | grep :3000
-sudo netstat -tlnp | grep :3001
+sudo netstat -tlnp | grep :5000
+sudo netstat -tlnp | grep :5001
 ```
 
 ## Security Notes
