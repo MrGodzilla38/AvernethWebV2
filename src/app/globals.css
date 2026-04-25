@@ -1798,3 +1798,31 @@ a:hover {
     font-size: 1.75rem;
   }
 }
+
+/* Empty States */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  min-height: 200px;
+}
+
+.empty-state--small {
+  padding: 2rem 1rem;
+  min-height: auto;
+}
+
+.empty-state__text {
+  font-size: 1rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.news-grid--empty {
+  grid-template-columns: 1fr;
+}

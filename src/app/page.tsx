@@ -233,33 +233,11 @@ export default function Home() {
               <div className="section__bg-overlay"></div>
               <div className="section__head">
                 <h2 className="section__title">Haberler &amp; duyurular</h2>
-                <a className="link-arrow" href="#tum-haberler">Tümü</a>
               </div>
-              <div className="news-grid">
-                <article className="news-card news-card--elevated">
-                  <span className="news-card__tag">Etkinlik</span>
-                  <time className="news-card__date" dateTime="2026-04-02">2 Nis 2026</time>
-                  <h3 className="news-card__title">Gölge pazarı açıldı</h3>
-                  <p className="news-card__excerpt">Nadir eşya takasları ve lonca sözleşmeleri için yeni NPC bölgesi aktif.</p>
-                  <span className="news-card__meta"><span className="news-card__views">892</span> görüntüleme</span>
-                  <a className="news-card__link" href="#haber-1">Devamını oku</a>
-                </article>
-                <article className="news-card news-card--elevated">
-                  <span className="news-card__tag">Denge</span>
-                  <time className="news-card__date" dateTime="2026-03-28">28 Mar 2026</time>
-                  <h3 className="news-card__title">Sınıf yetenekleri yeniden düzenlendi</h3>
-                  <p className="news-card__excerpt">Büyücü ve gölgeler arası PvE dengesi güncellendi; geri bildirimleriniz için teşekkürler.</p>
-                  <span className="news-card__meta"><span className="news-card__views">2.104</span> görüntüleme</span>
-                  <a className="news-card__link" href="#haber-2">Devamını oku</a>
-                </article>
-                <article className="news-card news-card--elevated">
-                  <span className="news-card__tag">Duyuru</span>
-                  <time className="news-card__date" dateTime="2026-03-15">15 Mar 2026</time>
-                  <h3 className="news-card__title">Sunucu bakımı tamamlandı</h3>
-                  <p className="news-card__excerpt">Performans iyileştirmeleri ve yeni zindan önbelleği devreye alındı.</p>
-                  <span className="news-card__meta"><span className="news-card__views">3.421</span> görüntüleme</span>
-                  <a className="news-card__link" href="#haber-3">Devamını oku</a>
-                </article>
+              <div className="news-grid news-grid--empty">
+                <div className="empty-state">
+                  <p className="empty-state__text">Henüz haber bulunmuyor.</p>
+                </div>
               </div>
             </section>
           </div>
@@ -267,21 +245,15 @@ export default function Home() {
           <aside className="layout__side" aria-label="Yan panel">
             <div className="side-card side-card--glass">
               <h3 className="side-card__title">Bu ay — destek sıralaması</h3>
-              <ol className="rank-list">
-                <li><span className="rank-list__name">Eclipsa_</span> <span className="rank-list__val">—</span></li>
-                <li><span className="rank-list__name">Morwen</span> <span className="rank-list__val">—</span></li>
-                <li><span className="rank-list__name">Thalric</span> <span className="rank-list__val">—</span></li>
-              </ol>
-              <p className="side-card__note">Canlı sıralama LeaderOS / mağaza entegrasyonu ile güncellenebilir.</p>
+              <div className="empty-state empty-state--small">
+                <p className="empty-state__text">Henüz veri yok.</p>
+              </div>
             </div>
             <div className="side-card side-card--glass">
               <h3 className="side-card__title">Son kayıtlar</h3>
-              <ul className="join-list">
-                <li><span className="join-list__name">VoidWalker</span> <span className="join-list__time">az önce</span></li>
-                <li><span className="join-list__name">Sylaise</span> <span className="join-list__time">3 dk önce</span></li>
-                <li><span className="join-list__name">Kaelen</span> <span className="join-list__time">11 dk önce</span></li>
-                <li><span className="join-list__name">Ashryn</span> <span className="join-list__time">24 dk önce</span></li>
-              </ul>
+              <div className="empty-state empty-state--small">
+                <p className="empty-state__text">Henüz veri yok.</p>
+              </div>
             </div>
             <div className="side-card side-card--social side-card--glass">
               <h3 className="side-card__title">Sosyal</h3>
