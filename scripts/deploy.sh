@@ -94,9 +94,9 @@ ssh $SERVER_USER@$SERVER_HOST "pm2 save"
 print_status "Performing health check..."
 sleep 10
 
-if curl -f http://$SERVER_HOST:3000 > /dev/null 2>&1; then
+if curl -f http://$SERVER_HOST:5000 > /dev/null 2>&1; then
     print_status "✅ Deployment completed successfully!"
-    print_status "Application is running at: http://$SERVER_HOST:3000"
+    print_status "Application is running at: http://$SERVER_HOST:5000"
 else
     print_error "❌ Health check failed. Application may not be running properly."
     print_error "Please check the logs on the server: pm2 logs AvernethWebV2"

@@ -265,7 +265,7 @@ NLOGIN_COL_BALANCE=balance
 NLOGIN_COL_CREATED=creation_date
 
 # Development Ayarları
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:5000
 NODE_ENV=development
 ```
 
@@ -297,11 +297,11 @@ npm run dev
 
 2. **Sunucu başlangıcını kontrol edin:**
 ```
-- ready started server on 0.0.0.0:3000, url: http://localhost:3000
+- ready started server on 0.0.0.0:5000, url: http://localhost:5000
 ```
 
 3. **Tarayıcıda açın:**
-   - Adres: [http://localhost:3000](http://localhost:3000)
+   - Adres: [http://localhost:5000](http://localhost:5000)
    - Sayfanın düzgün yüklendiğini doğrulayın
 
 4. **Hata kontrolü:**
@@ -561,7 +561,7 @@ bash ./scripts/assign-role.sh UstaGodzilla Admin
 
 Uygulama, port 3001'de çalışan Averneth API sunucusu ile entegre olur. API route'ları Next.js üzerinden otomatik olarak yönlendirilir:
 
-- Frontend port 3000'de çalışır
+- Frontend port 5000'de çalışır
 - `/api/*` istekleri `http://localhost:3001/api/*`'e yönlendirilir
 
 ## 📱 Responsive Tasarım
@@ -627,18 +627,18 @@ sudo chown -R $(whoami) /usr/local/lib/node_modules
 npx npm install
 ```
 
-**❌ "Port 3000 already in use" Hatası**
+**❌ "Port 5000 already in use" Hatası**
 ```bash
 # Port kullanan process'i bul
-netstat -tulpn | grep :3000
-# Windows: netstat -ano | findstr :3000
+netstat -tulpn | grep :5000
+# Windows: netstat -ano | findstr :5000
 
 # Process'i sonlandır
 # Linux/macOS: kill -9 <PID>
 # Windows: taskkill /PID <PID> /F
 
 # Veya farklı port kullan
-npm run dev -- -p 3001
+npm run dev -- -p 5001
 ```
 
 **❌ "Database connection failed" Hatası**
