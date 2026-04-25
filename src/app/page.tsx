@@ -33,11 +33,16 @@ function ParallaxBg({ src, speed = 0.4 }: { src: string; speed?: number }) {
   );
 }
 
+interface RecentUser {
+  last_name: string;
+}
+
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [balance, setBalance] = useState(0);
   const [headerAvatarUrl, setHeaderAvatarUrl] = useState('https://crafatar.com/avatars/MHF_Steve?size=40&default=MHF_Steve');
+  const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
 
   useEffect(() => {
     // Check if user is logged in
@@ -63,6 +68,42 @@ export default function Home() {
       }
     };
     checkAuth();
+
+    // Fetch recent registrations
+    const fetchRecentUsers = async () => {
+      try {
+        console.log('[Recent Users] Fetching...');
+        const response = await fetch(`/api/users/recent?t=${Date.now()}`);
+        const data = await response.json();
+        console.log('[Recent Users] Response:', data);
+        if (Array.isArray(data)) {
+          console.log('[Recent Users] Setting', data.length, 'users');
+          setRecentUsers(data);
+        } else {
+          console.warn('[Recent Users] Invalid response format:', data);
+        }
+      } catch (error) {
+        console.error('[Recent Users] Failed to fetch:', error);
+      }
+    };
+    fetchRecentUsers();
+
+    // Auto-refresh every 10 seconds (for testing)
+    const intervalId = setInterval(fetchRecentUsers, 10000);
+    console.log('[Recent Users] Interval started (10s)');
+
+    // Refresh when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchRecentUsers();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const copyIP = () => {
@@ -251,9 +292,27 @@ export default function Home() {
             </div>
             <div className="side-card side-card--glass">
               <h3 className="side-card__title">Son kayıtlar</h3>
-              <div className="empty-state empty-state--small">
-                <p className="empty-state__text">Henüz veri yok.</p>
-              </div>
+              {recentUsers.length > 0 ? (
+                <div className="recent-users-list">
+                  {recentUsers.map((user, index) => (
+                    <div key={index} className="recent-user-item">
+                      <img
+                        src={`https://mc-heads.net/avatar/${user.last_name}/32`}
+                        alt={user.last_name}
+                        className="recent-user-avatar"
+                        width={32}
+                        height={32}
+                        onError={(e) => { e.currentTarget.src = 'https://crafatar.com/avatars/MHF_Steve?size=32&default=MHF_Steve'; }}
+                      />
+                      <span className="recent-user-name">{user.last_name}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state empty-state--small">
+                  <p className="empty-state__text">Henüz veri yok.</p>
+                </div>
+              )}
             </div>
             <div className="side-card side-card--social side-card--glass">
               <h3 className="side-card__title">Sosyal</h3>

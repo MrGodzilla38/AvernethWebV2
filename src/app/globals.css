@@ -1826,3 +1826,40 @@ a:hover {
 .news-grid--empty {
   grid-template-columns: 1fr;
 }
+
+/* Recent Users List */
+.recent-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recent-user-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: rgba(18, 31, 54, 0.4);
+  border: 1px solid var(--border);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.recent-user-item:hover {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: var(--border-strong);
+}
+
+.recent-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.recent-user-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--silver-400);
+}
