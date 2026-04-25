@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth';
+import { debug } from '@/lib/debug';
 
 export async function GET(req: NextRequest) {
   const adminCheck = await requireAdmin(req);
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
     );
     return NextResponse.json({ ok: true, users: rows });
   } catch (err) {
-    console.error(err);
+    debug.error(err);
     return NextResponse.json({ ok: false, error: "Kullanıcılar yüklenemedi." }, { status: 500 });
   }
 }

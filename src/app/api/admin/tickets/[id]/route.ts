@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPool } from '@/lib/db';
+import { debug } from '@/lib/debug';
 import { cookies } from 'next/headers';
 import { verify } from 'jsonwebtoken';
+import { getPool } from '@/lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -100,7 +101,7 @@ export async function DELETE(
     );
 
   } catch (error) {
-    console.error('[TICKET DELETE ERROR]', error);
+    debug.error('[TICKET DELETE ERROR]', error);
     return NextResponse.json(
       { ok: false, error: 'Sunucu hatası' },
       { status: 500 }

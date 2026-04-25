@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import { rateLimit, clientIp, MC_USER, PASS_MIN, PASS_MAX, EMAIL_MAX, EMAIL_OK } from '@/lib/utils';
 import { requireJwtSecret, generateToken, setAuthCookie, BCRYPT_ROUNDS } from '@/lib/auth';
+import { debug } from '@/lib/debug';
 
 export async function POST(req: NextRequest) {
   const jwtCheck = requireJwtSecret();
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
     setAuthCookie(response, token);
     return response;
   } catch (err) {
-    console.error(err);
+    debug.error(err);
     return NextResponse.json({ ok: false, error: "Veritabanı hatası. Yapılandırmayı kontrol edin." }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import './admin.css';
+import { debug } from '@/lib/debug';
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -39,18 +40,18 @@ export default function AdminPage() {
       const timestamp = Date.now();
       const response = await fetch(`/api/admin/tickets?_t=${timestamp}`, { cache: 'no-store' });
       const data = await response.json();
-      console.log('[loadTickets] API yanıtı:', { ok: data.ok, ticketCount: data.tickets?.length, timestamp });
+      debug.log('[loadTickets] API yanıtı:', { ok: data.ok, ticketCount: data.tickets?.length, timestamp });
       if (data.ok && Array.isArray(data.tickets)) {
         setTickets(data.tickets);
-        console.log('[loadTickets] Tickets state güncellendi, count:', data.tickets.length);
+        debug.log('[loadTickets] Tickets state güncellendi, count:', data.tickets.length);
         if (data.tickets.length > 0) {
-          console.log('[loadTickets] İlk ticket:', { id: data.tickets[0].id, status: data.tickets[0].status });
+          debug.log('[loadTickets] İlk ticket:', { id: data.tickets[0].id, status: data.tickets[0].status });
         }
       } else {
-        console.error('[loadTickets] API başarısız:', data);
+        debug.error('[loadTickets] API başarısız:', data);
       }
     } catch (error) {
-      console.error('[loadTickets] Hata:', error);
+      debug.error('[loadTickets] Hata:', error);
     }
   };
   
@@ -66,7 +67,7 @@ export default function AdminPage() {
         setUsers(data.users || []);
       }
     } catch (error) {
-      console.error('Failed to load users:', error);
+      debug.error('Failed to load users:', error);
     }
   };
 
@@ -91,7 +92,7 @@ export default function AdminPage() {
           return;
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        debug.error('Auth check failed:', error);
         window.location.href = '/auth';
         return;
       }
@@ -125,7 +126,7 @@ export default function AdminPage() {
   // Ticket listesi için otomatik yenileme
   useEffect(() => {
     const intervalId = setInterval(() => {
-      console.log('[Admin] Polling: ticket listesi yenileniyor...');
+      debug.log('[Admin] Polling: ticket listesi yenileniyor...');
       loadTicketsRef.current();
     }, 3000);
     
@@ -135,7 +136,7 @@ export default function AdminPage() {
   // Tickets sekmesine geçince listeyi yenile
   useEffect(() => {
     if (activeTab === 'tickets') {
-      console.log('[Admin] Tickets sekmesi aktif, listeyi yenile');
+      debug.log('[Admin] Tickets sekmesi aktif, listeyi yenile');
       loadTicketsRef.current();
     }
   }, [activeTab]);
@@ -144,7 +145,7 @@ export default function AdminPage() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        console.log('[Admin] Sekme görünür oldu, ticket listesi yenileniyor...');
+        debug.log('[Admin] Sekme görünür oldu, ticket listesi yenileniyor...');
         loadTicketsRef.current();
       }
     };
@@ -190,7 +191,7 @@ export default function AdminPage() {
         }
       }
     } catch (error) {
-      console.error('Failed to refresh tickets:', error);
+      debug.error('Failed to refresh tickets:', error);
     }
   };
 
@@ -216,7 +217,7 @@ export default function AdminPage() {
         alert(data.error || 'Ticket silinirken bir hata oluştu.');
       }
     } catch (error) {
-      console.error('Ticket silme hatası:', error);
+      debug.error('Ticket silme hatası:', error);
       alert('Ticket silinirken bir hata oluştu.');
     }
   };
@@ -299,13 +300,13 @@ export default function AdminPage() {
         showToast('Yanıt gönderildi!');
       }
     } catch (error) {
-      console.error('Failed to send reply:', error);
+      debug.error('Failed to send reply:', error);
       showToast('Yanıt gönderilemedi!');
     }
   };
 
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
-    console.log('[updateTicketStatus] Çağrıldı:', { ticketId, newStatus });
+    debug.log('[updateTicketStatus] Çağrıldı:', { ticketId, newStatus });
     try {
       const response = await fetch(`/api/admin/tickets/${ticketId}/status`, {
         method: 'POST',
@@ -313,9 +314,9 @@ export default function AdminPage() {
         body: JSON.stringify({ status: newStatus })
       });
       
-      console.log('[updateTicketStatus] API yanıt status:', response.status);
+      debug.log('[updateTicketStatus] API yanıt status:', response.status);
       const data = await response.json();
-      console.log('[updateTicketStatus] API yanıt data:', data);
+      debug.log('[updateTicketStatus] API yanıt data:', data);
       
       if (data.ok) {
         // Yerel state güncelle
@@ -331,13 +332,13 @@ export default function AdminPage() {
         );
         
         showToast('Talep durumu güncellendi!');
-        console.log('[updateTicketStatus] Başarılı, state güncellendi');
+        debug.log('[updateTicketStatus] Başarılı, state güncellendi');
       } else {
-        console.error('[updateTicketStatus] API hata:', data.error);
+        debug.error('[updateTicketStatus] API hata:', data.error);
         showToast(data.error || 'Durum güncellenemedi!');
       }
     } catch (error) {
-      console.error('[updateTicketStatus] Exception:', error);
+      debug.error('[updateTicketStatus] Exception:', error);
       showToast('Durum güncellenemedi!');
     }
   };
@@ -374,7 +375,7 @@ export default function AdminPage() {
       await fetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/';
     } catch (error) {
-      console.error('Logout failed:', error);
+      debug.error('Logout failed:', error);
     }
   };
 
@@ -469,7 +470,7 @@ export default function AdminPage() {
         showToast('Hata: ' + (data.error || 'Kullanıcı güncellenemedi'));
       }
     } catch (error) {
-      console.error('Failed to update user:', error);
+      debug.error('Failed to update user:', error);
       showToast('Kullanıcı güncellenemedi');
     }
   };
@@ -513,7 +514,7 @@ export default function AdminPage() {
         showToast('Hata: ' + (data.error || 'Kullanıcı silinemedi'));
       }
     } catch (error) {
-      console.error('Failed to delete user:', error);
+      debug.error('Failed to delete user:', error);
       showToast('Kullanıcı silinemedi');
     } finally {
       setIsDeleting(false);
@@ -1044,7 +1045,7 @@ export default function AdminPage() {
                                     );
                                   }
                                 } catch (e) {
-                                  console.error('Attachment parse error:', e);
+                                  debug.error('Attachment parse error:', e);
                                 }
                                 return null;
                               })()}

@@ -1,4 +1,5 @@
 // Minecraft head API utility functions
+import { debug } from './debug';
 
 export interface MinecraftHead {
   url: string;
@@ -40,7 +41,7 @@ export async function getMinecraftHead(username: string): Promise<MinecraftHead>
       username: username
     };
   } catch (error) {
-    console.error(`Error fetching Minecraft head for ${username}:`, error);
+    debug.error(`Error fetching Minecraft head for ${username}:`, error);
     return {
       url: STEVE_HEAD_URL,
       exists: false,
@@ -81,7 +82,7 @@ export async function getMinecraftHeadWithFallback(username: string): Promise<st
     const head = await getMinecraftHead(username);
     return head.url;
   } catch (error) {
-    console.error('Minecraft head API error, using Steve fallback:', error);
+    debug.error('Minecraft head API error, using Steve fallback:', error);
     return STEVE_HEAD_URL;
   }
 }

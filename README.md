@@ -1,6 +1,6 @@
 # AvernethWebV2
 
-Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama ve kullanıcı yönetimi ile.
+Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama, destek talebi sistemi ve kapsamlı kullanıcı yönetimi ile.
 
 ## 🚀 Özellikler
 
@@ -9,7 +9,12 @@ Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama 
 - **Tailwind CSS** stil için
 - **MySQL** nLogin sistemi ile veritabanı entegrasyonu
 - **JWT Kimlik Doğrulama** bcrypt şifreleme ile
+- **Destek Talebi (Ticket) Sistemi** - Kullanıcılar destek talebi açabilir, yetkililer yanıtlayabilir
+- **Admin Paneli** - Kullanıcı yönetimi, destek talebi yönetimi ve durum güncelleme
+- **Rol Tabanlı Yetkilendirme** - Oyuncu, Rehber, Mimar, Moderator, Admin, Developer, Kurucu
+- **Minecraft Entegrasyonu** - Oyuncu avatarları (Crafatar/mc-heads)
 - **Responsive Tasarım**
+- **Debug Log Kontrolu** - Tek bir ayar ile tüm console loglarini acip kapama
 - **Production Ready** PM2 desteği ile
 
 ## 📋 Sistem Gereksinimleri
@@ -264,6 +269,13 @@ NLOGIN_COL_RANK=rank
 NLOGIN_COL_BALANCE=balance
 NLOGIN_COL_CREATED=creation_date
 
+# CORS Ayarları (opsiyonel)
+CORS_ORIGIN=*
+
+# Debug / Console log ayarları
+DEBUG=false                  # Server-side loglar (true: açık, false: kapali)
+NEXT_PUBLIC_DEBUG=false      # Client-side loglar (true: açık, false: kapali)
+
 # Development Ayarları
 NEXT_PUBLIC_APP_URL=http://localhost:5000
 NODE_ENV=development
@@ -453,9 +465,25 @@ Bu repository'de GitHub Actions ile otomatik deployment bulunur. GitHub reposito
 AvernethWebV2/
 ├── src/
 │   ├── app/              # Next.js App Router sayfaları
-│   ├── lib/              # Yardımcı fonksiyonlar ve veritabanı bağlantısı
+│   │   ├── page.tsx      # Ana sayfa
+│   │   ├── admin/        # Admin paneli (kullanıcı ve ticket yönetimi)
+│   │   ├── auth/         # Giriş ve kayıt sayfaları
+│   │   ├── destek/       # Destek talebi sistemi
+│   │   ├── wiki/         # Wiki/bilgi sayfası
+│   │   ├── api/          # API route'ları
+│   │   │   ├── auth/     # Kimlik doğrulama API'leri
+│   │   │   ├── user/     # Kullanıcı ticket API'leri
+│   │   │   ├── admin/    # Admin API'leri
+│   │   │   └── ...
+│   │   └── mcavatar/     # Minecraft avatar endpointi
+│   ├── lib/              # Yardımcı fonksiyonlar
+│   │   ├── auth.ts       # JWT ve kimlik doğrulama
+│   │   ├── db.ts         # MySQL bağlantısı
+│   │   ├── debug.ts      # Debug log kontrolü
+│   │   └── minecraft.ts  # Minecraft entegrasyonu
 │   └── components/       # React bileşenleri
-├── public/               # Statik dosyalar
+├── public/               # Statik dosyalar (arkaplanlar, favicon)
+├── scripts/              # Shell script'leri (rol atama, deploy, kurulum)
 ├── .env.local.example    # Ortam değişkenleri şablonu
 ├── .env.production       # Production ortam değişkenleri
 ├── ecosystem.config.js   # PM2 yapılandırması
@@ -478,6 +506,33 @@ AvernethWebV2/
 | `JWT_SECRET` | JWT imzalama anahtarı | - |
 | `JWT_EXPIRES_DAYS` | Token sona erme günü | `7` |
 | `BCRYPT_ROUNDS` | Şifreleme turları | `10` |
+| `DEBUG` | Server-side debug logları | `false` |
+| `NEXT_PUBLIC_DEBUG` | Client-side debug logları | `false` |
+
+### Debug Log Ayarları
+
+Projede tüm `console.log`, `console.warn` ve `console.error` çağrıları merkezi bir debug sistemi üzerinden kontrol edilir. Bu sayede geliştirme ortamında logları açıp, production'da kapatabilirsiniz.
+
+**Kullanım:**
+```env
+# .env.local dosyasına ekle:
+DEBUG=true              # Server-side (API route'ları) logları açar
+NEXT_PUBLIC_DEBUG=true  # Client-side (tarayıcı console) logları açar
+```
+
+**Kod içinde kullanım:**
+```typescript
+import { debug } from '@/lib/debug';
+
+debug.log('[Admin] Ticket listesi yenileniyor...');
+debug.error('Database error:', error);
+debug.warn('Uyari mesaji');
+```
+
+**Notlar:**
+- `DEBUG`: Next.js API route'larında (server-side) çalışır. `.env.local` dosyasında değiştirince sunucuyu yeniden başlatmanız gerekir.
+- `NEXT_PUBLIC_DEBUG`: React bileşenlerinde (client-side) çalışır. `.env.local` değişikliği sonrası sayfa yenilemesi yeterlidir.
+- Varsayılan olarak her ikisi de `false`'dur (loglar kapalı).
 
 ### Veritabanı Kolon Eşleştirme
 
@@ -556,6 +611,8 @@ bash ./scripts/assign-role.sh UstaGodzilla Admin
 - **Ortam Değişkenleri**: Hassas veriler repository'e commit edilmez
 - **CORS Koruması**: Yapılandırılabilir origin kısıtlamaları
 - **Input Validasyon**: SQL injection önleme
+- **Debug Log Kontrolu**: Production'da gereksiz logların konsola düşmemesi için merkezi debug ayarı
+- **Rol Tabanlı Erişim**: Admin paneli sadece yetkili roller (Rehber ve üstü) tarafından erişilebilir
 
 ## 🌐 API Entegrasyonu
 

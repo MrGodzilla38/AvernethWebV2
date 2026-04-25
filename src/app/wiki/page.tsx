@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import './wiki.css';
+import { debug } from '@/lib/debug';
 
 export default function WikiPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -26,7 +27,7 @@ export default function WikiPage() {
           setHeaderAvatarUrl(`https://mc-heads.net/avatar/${data.username}/40`);
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        debug.error('Auth check failed:', error);
       }
     };
     checkAuth();

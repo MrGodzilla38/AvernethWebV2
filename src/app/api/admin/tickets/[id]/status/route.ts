@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireJwtSecret, JWT_SECRET } from '@/lib/auth';
+import { debug } from '@/lib/debug';
 import { getPool } from '@/lib/db';
 
 interface RouteParams {
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
 
   } catch (error) {
-    console.error('[ADMIN TICKET STATUS API ERROR]', error);
+    debug.error('[ADMIN TICKET STATUS API ERROR]', error);
     return NextResponse.json(
       { ok: false, error: 'Sunucu hatası' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPool } from '@/lib/db';
+import { debug } from '@/lib/debug';
 
 export async function POST(
   req: NextRequest,
@@ -56,7 +57,7 @@ export async function POST(
       message: 'Yanıt gönderildi'
     });
   } catch (error) {
-    console.error('[TICKET REPLY API ERROR]', error);
+    debug.error('[TICKET REPLY API ERROR]', error);
     return NextResponse.json(
       { ok: false, error: 'Sunucu hatası' },
       { status: 500 }

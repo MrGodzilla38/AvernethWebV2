@@ -43,6 +43,12 @@ cp .env.production .env.local
 nano .env.local
 ```
 
+**Important**: Ensure debug logging is disabled in production (default):
+```env
+DEBUG=false
+NEXT_PUBLIC_DEBUG=false
+```
+
 ### 4. Build the Application
 ```bash
 npm run build:prod
@@ -148,6 +154,22 @@ The application uses these key environment variables (configured in `.env.produc
 - **JWT**: Authentication token configuration
 - **API**: Connection to backend API at localhost:5001
 - **CORS**: Cross-origin settings for production domain
+- **Debug**: `DEBUG` (server-side) and `NEXT_PUBLIC_DEBUG` (client-side) log control
+
+### Debug Logging in Production
+
+For performance and security, keep debug logging **disabled** in production:
+
+```env
+DEBUG=false          # Disables API/route console logs
+NEXT_PUBLIC_DEBUG=false  # Disables browser console logs
+```
+
+If you need to enable logs temporarily for troubleshooting:
+1. Edit `.env.local`: Set `DEBUG=true` and/or `NEXT_PUBLIC_DEBUG=true`
+2. Restart the application: `pm2 restart AvernethWebV2`
+3. Check logs: `pm2 logs AvernethWebV2`
+4. Remember to disable and restart after debugging
 
 ## Troubleshooting
 
@@ -181,7 +203,8 @@ sudo netstat -tlnp | grep :5001
 2. **SSL**: Configure SSL certificates with Let's Encrypt
 3. **Database**: Use strong MySQL passwords
 4. **JWT**: Change the JWT_SECRET in production
-5. **Updates**: Keep Node.js and dependencies updated
+5. **Debug Logs**: Keep `DEBUG` and `NEXT_PUBLIC_DEBUG` set to `false` in production
+6. **Updates**: Keep Node.js and dependencies updated
 
 ## SSL Configuration (Optional but Recommended)
 

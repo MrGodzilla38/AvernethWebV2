@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import jwt from 'jsonwebtoken';
+import { debug } from '@/lib/debug';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -49,7 +50,7 @@ export async function POST(req: NextRequest) {
         email = rows[0][C.email] || '';
       }
     } catch (jwtError) {
-      console.error('[DESTEK JWT ERROR]', jwtError);
+      debug.error('[DESTEK JWT ERROR]', jwtError);
     }
     
     // Eğer kullanıcı bilgileri alınamadıysa hata dön
@@ -130,7 +131,7 @@ export async function POST(req: NextRequest) {
          message.trim(), 'open', ip, attachmentData]
       ) as any;
 
-      console.log('[DESTEK TICKET] Kaydedildi, ID:', result.insertId);
+      debug.log('[DESTEK TICKET] Kaydedildi, ID:', result.insertId);
 
       return NextResponse.json({
         ok: true,
@@ -138,7 +139,7 @@ export async function POST(req: NextRequest) {
         message: 'Destek talebiniz alındı. En kısa sürede size dönüş yapacağız.'
       });
     } catch (dbError: any) {
-      console.error('[DESTEK DB ERROR]', dbError);
+      debug.error('[DESTEK DB ERROR]', dbError);
       // Hata mesajını kullanıcıya göster
       const errorMsg = dbError?.sqlMessage || dbError?.message || 'Veritabanı hatası';
       return NextResponse.json({
@@ -148,7 +149,7 @@ export async function POST(req: NextRequest) {
     }
 
   } catch (error) {
-    console.error('[DESTEK API ERROR]', error);
+    debug.error('[DESTEK API ERROR]', error);
     return NextResponse.json(
       { ok: false, error: 'Sunucu hatası. Lütfen daha sonra tekrar deneyin.' },
       { status: 500 }

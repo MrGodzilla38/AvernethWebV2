@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPool } from '@/lib/db';
+import { debug } from '@/lib/debug';
 
 // Production'da static caching'i engelle - her zaman fresh data
 export const dynamic = 'force-dynamic';
@@ -76,7 +77,7 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (error) {
-    console.error('[ADMIN TICKETS API ERROR]', error);
+    debug.error('[ADMIN TICKETS API ERROR]', error);
     return NextResponse.json(
       { ok: false, error: 'Sunucu hatası' },
       { status: 500 }

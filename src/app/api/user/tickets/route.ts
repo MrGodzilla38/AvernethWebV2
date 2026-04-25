@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPool } from '@/lib/db';
+import { debug } from '@/lib/debug';
 import jwt from 'jsonwebtoken';
+import { getPool } from '@/lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'averneth-secret-key';
 
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest) {
       tickets: ticketsWithMessages
     });
   } catch (error) {
-    console.error('[USER TICKETS API ERROR]', error);
+    debug.error('[USER TICKETS API ERROR]', error);
     return NextResponse.json(
       { ok: false, error: 'Sunucu hatası' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { debug } from '@/lib/debug';
 
 const dbConfig = {
   host: process.env.MYSQL_HOST || '127.0.0.1',
@@ -21,7 +22,7 @@ export async function GET() {
     
     return NextResponse.json(rows);
   } catch (error) {
-    console.error('Database error:', error);
+    debug.error('Database error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch users' },
       { status: 500 }

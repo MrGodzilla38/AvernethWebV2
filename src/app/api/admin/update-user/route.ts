@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import { requireAdmin, normalizeRank } from '@/lib/auth';
+import { debug } from '@/lib/debug';
 
 // Rol seviyeleri: Kurucu(6) > Admin(5) > Developer(4) > Moderator(3) > Mimar(2) > Rehber(1) > Oyuncu(0)
 const RANK_LEVELS: Record<string, number> = {
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
     );
     return NextResponse.json({ ok: true, message: "Kullanıcı güncellendi." });
   } catch (err) {
-    console.error(err);
+    debug.error(err);
     return NextResponse.json({ ok: false, error: "Kullanıcı güncellenemedi." }, { status: 500 });
   }
 }

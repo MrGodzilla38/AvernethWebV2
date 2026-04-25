@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import './destek.css';
+import { debug } from '@/lib/debug';
 
 interface FaqItem {
   question: string;
@@ -81,7 +82,7 @@ export default function DestekPage() {
         setTickets(data.tickets);
       }
     } catch (error) {
-      console.error('Ticket yükleme hatası:', error);
+      debug.error('Ticket yükleme hatası:', error);
     }
   };
 
@@ -117,7 +118,7 @@ export default function DestekPage() {
         }
       }
     } catch (error) {
-      console.error('Yanıt gönderme hatası:', error);
+      debug.error('Yanıt gönderme hatası:', error);
     }
   };
 
@@ -134,7 +135,7 @@ export default function DestekPage() {
         }
       }
     } catch (error) {
-      console.error('Mesaj yenileme hatası:', error);
+      debug.error('Mesaj yenileme hatası:', error);
     }
   };
 
@@ -165,7 +166,7 @@ export default function DestekPage() {
           window.location.replace('/auth');
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        debug.error('Auth check failed:', error);
         window.location.replace('/auth');
       }
     };
@@ -615,7 +616,7 @@ export default function DestekPage() {
                             </div>
                           );
                         }
-                      } catch (e) { console.error('Attachment parse error:', e); }
+                      } catch (e) { debug.error('Attachment parse error:', e); }
                       return null;
                     })()}
                   </div>

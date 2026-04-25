@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { debug } from '@/lib/debug';
 
 interface User {
   ai: number;
@@ -51,7 +52,7 @@ export default function UserProfile({ user, showDetails = true, size = 'medium' 
         setHeadUrl(`https://mc-heads.net/avatar/${minecraftUsername}/40`);
         setHeadExists(true);
       } catch (error) {
-        console.error('Error loading Minecraft head:', error);
+        debug.error('Error loading Minecraft head:', error);
         setHeadUrl('https://mc-heads.net/avatar/Steve/40');
         setHeadExists(false);
       } finally {

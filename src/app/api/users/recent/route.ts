@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { debug } from '@/lib/debug';
 
 const dbConfig = {
   host: process.env.MYSQL_HOST || '127.0.0.1',
@@ -10,7 +11,7 @@ const dbConfig = {
 };
 
 export async function GET(request: Request) {
-  console.log('[API Recent] Called at', new Date().toISOString(), 'URL:', request.url);
+  debug.log('[API Recent] Called at', new Date().toISOString(), 'URL:', request.url);
   try {
     const connection = await mysql.createConnection(dbConfig);
     
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json(rows);
   } catch (error) {
-    console.error('Database error:', error);
+    debug.error('Database error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch recent users' },
       { status: 500 }

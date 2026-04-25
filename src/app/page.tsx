@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { debug } from '@/lib/debug';
 
 function ParallaxBg({ src, speed = 0.4 }: { src: string; speed?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -64,7 +65,7 @@ export default function Home() {
 //      } catch (_) {}
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        debug.error('Auth check failed:', error);
       }
     };
     checkAuth();
@@ -72,25 +73,25 @@ export default function Home() {
     // Fetch recent registrations
     const fetchRecentUsers = async () => {
       try {
-        console.log('[Recent Users] Fetching...');
+        debug.log('[Recent Users] Fetching...');
         const response = await fetch(`/api/users/recent?t=${Date.now()}`);
         const data = await response.json();
-        console.log('[Recent Users] Response:', data);
+        debug.log('[Recent Users] Response:', data);
         if (Array.isArray(data)) {
-          console.log('[Recent Users] Setting', data.length, 'users');
+          debug.log('[Recent Users] Setting', data.length, 'users');
           setRecentUsers(data);
         } else {
-          console.warn('[Recent Users] Invalid response format:', data);
+          debug.warn('[Recent Users] Invalid response format:', data);
         }
       } catch (error) {
-        console.error('[Recent Users] Failed to fetch:', error);
+        debug.error('[Recent Users] Failed to fetch:', error);
       }
     };
     fetchRecentUsers();
 
     // Auto-refresh every 10 seconds (for testing)
     const intervalId = setInterval(fetchRecentUsers, 10000);
-    console.log('[Recent Users] Interval started (10s)');
+    debug.log('[Recent Users] Interval started (10s)');
 
     // Refresh when tab becomes visible
     const handleVisibilityChange = () => {
