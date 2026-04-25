@@ -1,8 +1,37 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+function ParallaxBg({ src, speed = 0.4 }: { src: string; speed?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const rect = el.parentElement?.getBoundingClientRect();
+      if (!rect) return;
+      const offset = rect.top * speed;
+      el.style.transform = `translate3d(0, ${offset}px, 0)`;
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [speed]);
+
+  return (
+    <div
+      ref={ref}
+      className="parallax-bg"
+      style={{ backgroundImage: `url('${src}')` }}
+      aria-hidden="true"
+    />
+  );
+}
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -107,15 +136,16 @@ export default function Home() {
       </header>
 
       <main id="anasayfa">
-        <section className="hero" aria-labelledby="hero-title">
+        {/* HERO - Full Screen */}
+        <section className="hero hero--fullscreen" aria-labelledby="hero-title">
           <div className="hero__scene" aria-hidden="true">
-            <div className="hero__bg"></div>
-            <div className="hero__bg-shade"></div>
+            <div className="hero__bg hero__bg--fixed" style={{ backgroundImage: "url('/assets/arkaplan1.png')" }}></div>
+            <div className="hero__bg-shade hero__bg-shade--dark"></div>
           </div>
           <div className="container hero__center">
             <div className="hero__content">
               <p className="season-tag"><span className="season-tag__dot" aria-hidden="true"></span> SEZON 4 — KARANLIK KRALLIK</p>
-              <h1 className="hero__title" id="hero-title">
+              <h1 className="hero__title hero__title--large" id="hero-title">
                 <Image
                   className="hero__title-img"
                   src="/assets/averneth-logo.png"
@@ -124,11 +154,11 @@ export default function Home() {
                   alt="Averneth"
                 />
               </h1>
-              <p className="hero__lead">
-                Karanlık bir dünyada efsanenin yazılacağı yer. Minecraft MMORPG deneyiminin zirvesi.
+              <p className="hero__lead hero__lead--large">
+                Karanlık bir dünyada efsanenin yazılacağı yer.<br/>Minecraft MMORPG deneyiminin zirvesi.
               </p>
               <p className="hero__keywords">SAVAŞ <span aria-hidden="true">•</span> KEŞFET <span aria-hidden="true">•</span> HÜKMET</p>
-              <div className="hero__cta">
+              <div className="hero__cta hero__cta--centered">
                 <a className="btn btn--primary btn--lg btn--glow" href="#magaza">
                   <svg className="btn__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M6 7h15l-1.5 9h-12L6 7zm0 0L5 3H2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
@@ -144,7 +174,7 @@ export default function Home() {
                   Discord&apos;a Katıl
                 </a>
               </div>
-              <div className="hero__ip-bar">
+              <div className="hero__ip-bar hero__ip-bar--large">
                 <span className="hero__ip-dot" aria-hidden="true"></span>
                 <span className="hero__ip-label">SUNUCU IP</span>
                 <code className="hero__ip-value">play.averneth.net</code>
@@ -156,22 +186,57 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <a className="hero__scroll" href="#haberler">
+            <a className="hero__scroll" href="#hakkimizda">
               <span className="hero__scroll-text">KEŞFET</span>
               <span className="hero__scroll-arrow" aria-hidden="true">↓</span>
             </a>
           </div>
         </section>
 
-        <div className="container layout">
+        {/* HAKKIMIZDA - Centered Text Section */}
+        <section className="section section--about" id="hakkimizda">
+          <div className="section__bg" style={{ backgroundImage: "url('/assets/arkaplan4.png')" }}></div>
+          <div className="section__bg-overlay"></div>
+          <div className="section__divider" aria-hidden="true">
+            <span className="section__divider-line"></span>
+            <span className="section__divider-icon">✦</span>
+            <span className="section__divider-line"></span>
+          </div>
+          <div className="container">
+            <div className="about-content">
+              <h2 className="section__title section__title--centered">Hakkımızda</h2>
+              <p className="about-text">
+                AVERNETH, karanlık fantezi dünyasında geçen bağımsız bir Minecraft MMORPG projesidir. 
+                2026&apos;ten beri sürekli gelişen, topluluk odaklı bir sunucu olarak hizmet veriyoruz.
+              </p>
+              <p className="about-text about-text--muted">
+                Sunucumuzda özel geliştirilmiş zindanlar, lonca savaşları ve derin bir ekonomi sistemi bulunmaktadır. 
+                Her sezon yeni içerikler, yeni maceralar ve keşfedilecek yeni diyarlar sizi bekliyor.
+              </p>
+              <p className="about-quote">
+                &ldquo;Karanlıkta parlayan tek ışık, senin kılıcının parıltısıdır.&rdquo;
+              </p>
+            </div>
+          </div>
+          <div className="section__divider section__divider--bottom" aria-hidden="true">
+            <span className="section__divider-line"></span>
+            <span className="section__divider-icon">✦</span>
+            <span className="section__divider-line"></span>
+          </div>
+        </section>
+
+        {/* HABERLER & YAN PANEL */}
+        <div className="container layout layout--spacious">
           <div className="layout__main">
-            <section className="section" id="haberler">
+            <section className="section section--with-bg" id="haberler">
+              <div className="section__bg" style={{ backgroundImage: "url('/assets/arkaplan5.png')" }}></div>
+              <div className="section__bg-overlay"></div>
               <div className="section__head">
                 <h2 className="section__title">Haberler &amp; duyurular</h2>
                 <a className="link-arrow" href="#tum-haberler">Tümü</a>
               </div>
               <div className="news-grid">
-                <article className="news-card">
+                <article className="news-card news-card--elevated">
                   <span className="news-card__tag">Etkinlik</span>
                   <time className="news-card__date" dateTime="2026-04-02">2 Nis 2026</time>
                   <h3 className="news-card__title">Gölge pazarı açıldı</h3>
@@ -179,7 +244,7 @@ export default function Home() {
                   <span className="news-card__meta"><span className="news-card__views">892</span> görüntüleme</span>
                   <a className="news-card__link" href="#haber-1">Devamını oku</a>
                 </article>
-                <article className="news-card">
+                <article className="news-card news-card--elevated">
                   <span className="news-card__tag">Denge</span>
                   <time className="news-card__date" dateTime="2026-03-28">28 Mar 2026</time>
                   <h3 className="news-card__title">Sınıf yetenekleri yeniden düzenlendi</h3>
@@ -187,7 +252,7 @@ export default function Home() {
                   <span className="news-card__meta"><span className="news-card__views">2.104</span> görüntüleme</span>
                   <a className="news-card__link" href="#haber-2">Devamını oku</a>
                 </article>
-                <article className="news-card">
+                <article className="news-card news-card--elevated">
                   <span className="news-card__tag">Duyuru</span>
                   <time className="news-card__date" dateTime="2026-03-15">15 Mar 2026</time>
                   <h3 className="news-card__title">Sunucu bakımı tamamlandı</h3>
@@ -197,20 +262,10 @@ export default function Home() {
                 </article>
               </div>
             </section>
-
-            <section className="section section--alt" id="sunucu">
-              <h2 className="section__title">Neden AVERNETH?</h2>
-              <ul className="feature-list">
-                <li><strong>Derin MMORPG</strong> — Görev zincirleri, sınıflar ve uzmanlık ağaçları.</li>
-                <li><strong>Lonca sistemi</strong> — Kale kuşatmaları ve bölgesel hakimiyet.</li>
-                <li><strong>Özel zindanlar</strong> — Mekanik bosslar ve takım oyunu odaklı içerik.</li>
-                <li><strong>Adil ekonomi</strong> — Kozmetik odaklı mağaza, oyun içi kazanım yolları.</li>
-              </ul>
-            </section>
           </div>
 
           <aside className="layout__side" aria-label="Yan panel">
-            <div className="side-card">
+            <div className="side-card side-card--glass">
               <h3 className="side-card__title">Bu ay — destek sıralaması</h3>
               <ol className="rank-list">
                 <li><span className="rank-list__name">Eclipsa_</span> <span className="rank-list__val">—</span></li>
@@ -219,7 +274,7 @@ export default function Home() {
               </ol>
               <p className="side-card__note">Canlı sıralama LeaderOS / mağaza entegrasyonu ile güncellenebilir.</p>
             </div>
-            <div className="side-card">
+            <div className="side-card side-card--glass">
               <h3 className="side-card__title">Son kayıtlar</h3>
               <ul className="join-list">
                 <li><span className="join-list__name">VoidWalker</span> <span className="join-list__time">az önce</span></li>
@@ -228,7 +283,7 @@ export default function Home() {
                 <li><span className="join-list__name">Ashryn</span> <span className="join-list__time">24 dk önce</span></li>
               </ul>
             </div>
-            <div className="side-card side-card--social">
+            <div className="side-card side-card--social side-card--glass">
               <h3 className="side-card__title">Sosyal</h3>
               <div className="social-row">
                 <a className="social-btn" href="https://discord.gg/averneth" aria-label="Discord">Discord</a>
@@ -238,54 +293,55 @@ export default function Home() {
           </aside>
         </div>
 
-        <section className="section section--quick container" aria-label="Hızlı erişim">
-          <div className="quick-grid">
-            <a className="quick-tile" id="magaza" href="#">
-              <span className="quick-tile__label">Mağaza</span>
-              <span className="quick-tile__hint">Kozmetik ve destek</span>
-            </a>
-            <a className="quick-tile" id="forum" href="#">
-              <span className="quick-tile__label">Forum</span>
-              <span className="quick-tile__hint">Topluluk ve rehberler</span>
-            </a>
-            <a className="quick-tile" id="destek" href="/destek">
-              <span className="quick-tile__label">Destek</span>
-              <span className="quick-tile__hint">Bilet ve iletişim</span>
-            </a>
-            <a className="quick-tile" id="yetkili-basvuru" href="#">
-              <span className="quick-tile__label">Yetkili Başvuru</span>
-              <span className="quick-tile__hint">Ekip başvurusu</span>
-            </a>
-          </div>
-        </section>
-
-        <section className="section section--auth" aria-labelledby="auth-title">
-          <div className="container auth-panel">
-            <h2 id="auth-title" className="section__title">Hesap</h2>
-            <p className="auth-panel__text auth-panel__text--lead">
-              Giriş ve kayıt, sunucudaki <strong>nLogin</strong> hesaplarıyla aynı MySQL veritabanını kullanır (BCrypt). Tam form için hesap sayfasına gidin.
-            </p>
-            <div className="auth-panel__actions">
-              <Link className="btn btn--primary" href="/auth#giris">Giriş yap</Link>
-              <Link className="btn btn--ghost" href="/auth#kayit">Kayıt ol</Link>
+        {/* CTA - Join Section */}
+        <section className="section section--cta" id="katil">
+          <div className="section__bg" style={{ backgroundImage: "url('/assets/arkaplan3.png')" }}></div>
+          <div className="section__bg-overlay section__bg-overlay--dark"></div>
+          <div className="container">
+            <div className="cta-content">
+              <h2 className="cta-title">Averneth dünyasına katıl</h2>
+              <p className="cta-subtitle">Binlerce macera seni bekliyor. Hemen kayıt ol ve destanına başla.</p>
+              <div className="cta-actions">
+                <Link className="btn btn--primary btn--xl btn--glow" href="/auth#kayit">Hemen Başla</Link>
+                <div className="cta-ip">
+                  <span className="cta-ip__label">Sunucu IP</span>
+                  <code className="cta-ip__value" onClick={copyIP}>play.averneth.net</code>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="section section--legal container" aria-label="Yasal bilgiler">
-          <p id="kurallar" className="legal-line" tabIndex={-1}>
-            <strong>Kurallar.</strong> Sunucu kuralları için ayrı bir sayfa veya forum başlığına yönlendirin.
-          </p>
-          <p id="terms" className="legal-line" tabIndex={-1}>
-            <strong>Hizmet şartları.</strong> Ticari ve kullanım koşulları metninizi buraya ekleyin.
-          </p>
-          <p id="privacy" className="legal-line" tabIndex={-1}>
-            <strong>Gizlilik.</strong> Veri işleme ve çerez politikası bağlantınızı burada verin.
-          </p>
+        {/* QUICK LINKS */}
+        <section className="section section--quick section--with-bg" aria-label="Hızlı erişim">
+          <div className="section__bg" style={{ backgroundImage: "url('/assets/arkaplan2.png')" }}></div>
+          <div className="section__bg-overlay"></div>
+          <div className="container">
+          <div className="quick-grid quick-grid--large">
+            <a className="quick-tile quick-tile--large" id="magaza" href="#">
+              <span className="quick-tile__label">Mağaza</span>
+              <span className="quick-tile__hint">Kozmetik ve destek</span>
+            </a>
+            <a className="quick-tile quick-tile--large" id="forum" href="#">
+              <span className="quick-tile__label">Forum</span>
+              <span className="quick-tile__hint">Topluluk ve rehberler</span>
+            </a>
+            <a className="quick-tile quick-tile--large" id="destek" href="/destek">
+              <span className="quick-tile__label">Destek</span>
+              <span className="quick-tile__hint">Bilet ve iletişim</span>
+            </a>
+            <a className="quick-tile quick-tile--large" id="yetkili-basvuru" href="#">
+              <span className="quick-tile__label">Yetkili Başvuru</span>
+              <span className="quick-tile__hint">Ekip başvurusu</span>
+            </a>
+          </div>
+          </div>
         </section>
       </main>
 
-      <footer className="footer">
+      <footer className="footer footer--with-bg">
+        <div className="footer__bg" style={{ backgroundImage: "url('/assets/arkaplan1.png')" }}></div>
+        <div className="footer__bg-overlay"></div>
         <div className="container footer__grid">
           <div>
             <h3 className="footer__heading">Hakkımızda</h3>
