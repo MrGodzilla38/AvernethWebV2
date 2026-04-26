@@ -189,7 +189,50 @@ DESCRIBE support_tickets;
 DESCRIBE ticket_messages;
 ```
 
-6. **MySQL'den çıkış yapın:**
+6. **Yetkili Başvuru Sistemi Tablolarını Oluşturun:**
+```sql
+# Yetkili başvuruları tablosu
+CREATE TABLE IF NOT EXISTS staff_applications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100) NOT NULL DEFAULT '',
+  last_name VARCHAR(100) NOT NULL DEFAULT '',
+  discord VARCHAR(100) NOT NULL DEFAULT '',
+  age INT NOT NULL DEFAULT 0,
+  position VARCHAR(50) NOT NULL,
+  experience TEXT NOT NULL,
+  why TEXT NOT NULL,
+  availability TEXT NOT NULL,
+  about TEXT,
+  status ENUM('pending', 'reviewing', 'accepted', 'rejected') DEFAULT 'pending',
+  ip_address VARCHAR(100),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at),
+  INDEX idx_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+# Yetkili başvuru yorumları tablosu
+CREATE TABLE IF NOT EXISTS staff_application_comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  application_id INT NOT NULL,
+  author VARCHAR(100) NOT NULL,
+  author_rank VARCHAR(50),
+  content TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (application_id) REFERENCES staff_applications(id) ON DELETE CASCADE,
+  INDEX idx_application_id (application_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+# Tabloları kontrol edin
+SHOW TABLES;
+DESCRIBE staff_applications;
+DESCRIBE staff_application_comments;
+```
+
+7. **MySQL'den çıkış yapın:**
 ```sql
 EXIT;
 ```
