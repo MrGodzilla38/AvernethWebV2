@@ -10,7 +10,8 @@ Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama,
 - **MySQL** nLogin sistemi ile veritabanı entegrasyonu
 - **JWT Kimlik Doğrulama** bcrypt şifreleme ile
 - **Destek Talebi (Ticket) Sistemi** - Kullanıcılar destek talebi açabilir, yetkililer yanıtlayabilir
-- **Admin Paneli** - Kullanıcı yönetimi, destek talebi yönetimi ve durum güncelleme
+- **Yetkili Başvuru Sistemi** - Kullanılar yetkili pozisyonlarına başvuru yapabilir, Admin/Kurucu başvuruları inceleyebilir
+- **Admin Paneli** - Kullanıcı yönetimi, destek talebi yönetimi, yetkili başvuru inceleme ve durum güncelleme
 - **Rol Tabanlı Yetkilendirme** - Oyuncu, Rehber, Mimar, Moderator, Admin, Developer, Kurucu
 - **Minecraft Entegrasyonu** - Oyuncu avatarları (Crafatar/mc-heads)
 - **Responsive Tasarım**
@@ -402,6 +403,51 @@ CREATE TABLE IF NOT EXISTS ticket_messages (
 
 **Not:** Bu tablolar API ilk çalıştığında otomatik olarak oluşturulur. Manuel oluşturmanıza gerek yoktur.
 
+### Yetkili Başvuru Sistemi Tabloları
+
+Yetkili başvuru sistemi için aşağıdaki tablolar otomatik olarak oluşturulur:
+
+**staff_applications** - Ana başvuru tablosu:
+```sql
+CREATE TABLE IF NOT EXISTS staff_applications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,            -- Kullanıcı adı (Minecraft ismi)
+  email VARCHAR(255) NOT NULL,           -- E-posta adresi
+  first_name VARCHAR(100) NOT NULL DEFAULT '',  -- İsim
+  last_name VARCHAR(100) NOT NULL DEFAULT '',   -- Soyisim
+  discord VARCHAR(100) NOT NULL DEFAULT '',     -- Discord kullanıcı adı
+  age INT NOT NULL DEFAULT 0,              -- Yaş
+  position VARCHAR(50) NOT NULL,           -- Başvurulan pozisyon (Rehber, Mimar, Moderator, Developer)
+  experience TEXT NOT NULL,                -- Deneyimler
+  why TEXT NOT NULL,                       -- Neden bu pozisyon
+  availability TEXT NOT NULL,            -- Aktiflik durumu
+  about TEXT,                            -- Ek bilgiler (opsiyonel)
+  status ENUM('pending', 'reviewing', 'accepted', 'rejected') DEFAULT 'pending',
+  ip_address VARCHAR(100),                 -- IP adresi
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at),
+  INDEX idx_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**staff_application_comments** - Başvuru yorumları tablosu (yetkililer için):
+```sql
+CREATE TABLE IF NOT EXISTS staff_application_comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  application_id INT NOT NULL,             -- İlişkili başvuru ID
+  author VARCHAR(100) NOT NULL,            -- Yorum yazan yetkili
+  author_rank VARCHAR(50),                 -- Yetkilinin rütbesi
+  content TEXT NOT NULL,                   -- Yorum içeriği
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (application_id) REFERENCES staff_applications(id) ON DELETE CASCADE,
+  INDEX idx_application_id (application_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Not:** Bu tablolar API ilk çalıştığında otomatik olarak oluşturulur. Manuel oluşturmanıza gerek yoktur.
+
 **Örnek veri ekleme (test için):**
 ```sql
 INSERT INTO nlogin (last_name, password, email, rank, balance) VALUES 
@@ -468,6 +514,7 @@ AvernethWebV2/
 │   │   ├── page.tsx      # Ana sayfa
 │   │   ├── admin/        # Admin paneli (kullanıcı ve ticket yönetimi)
 │   │   ├── auth/         # Giriş ve kayıt sayfaları
+│   │   ├── basvuru/      # Yetkili başvuru sistemi
 │   │   ├── destek/       # Destek talebi sistemi
 │   │   ├── wiki/         # Wiki/bilgi sayfası
 │   │   ├── api/          # API route'ları
@@ -613,6 +660,8 @@ bash ./scripts/assign-role.sh UstaGodzilla Admin
 - **Input Validasyon**: SQL injection önleme
 - **Debug Log Kontrolu**: Production'da gereksiz logların konsola düşmemesi için merkezi debug ayarı
 - **Rol Tabanlı Erişim**: Admin paneli sadece yetkili roller (Rehber ve üstü) tarafından erişilebilir
+- **Yetkili Başvuru Erişim Kontrolü**: Başvuru inceleme sadece Admin ve Kurucu tarafından yapılabilir, silme sadece Kurucu'ya özeldir
+- **Oturum Zorunluluğu**: /basvuru sayfası giriş yapmadan erişilemez (middleware ile yönlendirme)
 
 ## 🌐 API Entegrasyonu
 
