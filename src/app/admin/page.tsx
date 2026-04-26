@@ -12,9 +12,13 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [replyText, setReplyText] = useState<string>('');
+  const [appReplyText, setAppReplyText] = useState<string>('');
+  const [appStatusFilter, setAppStatusFilter] = useState<string>('');
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [editingRank, setEditingRank] = useState<string>('');
   const [editingBalance, setEditingBalance] = useState<string>('');
@@ -32,6 +36,8 @@ export default function AdminPage() {
   const [resolveNote, setResolveNote] = useState<string>('');
   // Ticket silme modalı state'i (sadece Kurucu)
   const [deleteTicketModal, setDeleteTicketModal] = useState<any>(null);
+  // Başvuru silme modalı state'i (sadece Kurucu)
+  const [deleteAppModal, setDeleteAppModal] = useState<any>(null);
 
   // === FONKSİYON TANIMLARI - useEffect'lerden önce ===
   
@@ -71,6 +77,18 @@ export default function AdminPage() {
     }
   };
 
+  const loadApplications = async () => {
+    try {
+      const response = await fetch('/api/admin/basvurular', { cache: 'no-store' });
+      const data = await response.json();
+      if (data.ok && Array.isArray(data.applications)) {
+        setApplications(data.applications);
+      }
+    } catch (error) {
+      debug.error('Failed to load applications:', error);
+    }
+  };
+
   // === USEEFFECT'LER ===
 
   useEffect(() => {
@@ -99,6 +117,7 @@ export default function AdminPage() {
       
       await loadUsers();
       await loadTickets();
+      await loadApplications();
       setLoading(false);
     };
     
@@ -234,6 +253,106 @@ export default function AdminPage() {
     if (!user?.rank) return false;
     const allowedRanks = ['Admin', 'Developer', 'Kurucu'];
     return allowedRanks.includes(user.rank);
+  };
+
+  // Yetki kontrolü - sadece Admin ve Kurucu başvuruları görebilir
+  const canViewApplications = (): boolean => {
+    if (!user?.rank) return false;
+    const allowedRanks = ['Admin', 'Kurucu'];
+    return allowedRanks.includes(user.rank);
+  };
+
+  const updateApplicationStatus = async (appId: number, status: string) => {
+    try {
+      const res = await fetch(`/api/admin/basvurular/${appId}/durum`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setApplications(prev => prev.map(a => a.id === appId ? { ...a, status } : a));
+        if (selectedApplication && selectedApplication.id === appId) {
+          setSelectedApplication({ ...selectedApplication, status });
+        }
+      }
+    } catch (e) {
+      debug.error('Failed to update application status:', e);
+    }
+  };
+
+  const addApplicationComment = async (appId: number, content: string) => {
+    if (!user || !content.trim()) return;
+    try {
+      const res = await fetch(`/api/admin/basvurular/${appId}/yorum`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: content.trim(), authorRank: user.rank })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const newComment = {
+          id: data.commentId,
+          author: user.username,
+          authorRank: user.rank,
+          content: content.trim(),
+          createdAt: new Date().toISOString()
+        };
+        setApplications(prev => prev.map(a => {
+          if (a.id !== appId) return a;
+          return { ...a, comments: [...(a.comments || []), newComment] };
+        }));
+        if (selectedApplication && selectedApplication.id === appId) {
+          setSelectedApplication({
+            ...selectedApplication,
+            comments: [...(selectedApplication.comments || []), newComment]
+          });
+        }
+      }
+    } catch (e) {
+      debug.error('Failed to add application comment:', e);
+    }
+  };
+
+  // Başvuru silme fonksiyonu (sadece Kurucu)
+  const deleteApplication = async (appId: number) => {
+    if (user?.rank !== 'Kurucu') {
+      alert('Bu işlem için Kurucu yetkisi gereklidir.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/basvurular/${appId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        setApplications(prev => prev.filter(a => a.id !== appId));
+        setDeleteAppModal(null);
+        if (selectedApplication && selectedApplication.id === appId) {
+          setSelectedApplication(null);
+          setAppReplyText('');
+        }
+      } else {
+        alert(data.error || 'Başvuru silinirken bir hata oluştu.');
+      }
+    } catch (error) {
+      debug.error('Başvuru silme hatası:', error);
+      alert('Başvuru silinirken bir hata oluştu.');
+    }
+  };
+
+  const getAppStatusBadge = (status: string) => {
+    const map: Record<string, { cls: string; label: string }> = {
+      pending: { cls: 'app-status--pending', label: 'Beklemede' },
+      reviewing: { cls: 'app-status--reviewing', label: 'İnceleniyor' },
+      accepted: { cls: 'app-status--accepted', label: 'Kabul Edildi' },
+      rejected: { cls: 'app-status--rejected', label: 'Reddedildi' }
+    };
+    const info = map[status] || { cls: 'app-status--pending', label: 'Beklemede' };
+    return <span className={`status ${info.cls}`}>{info.label}</span>;
   };
 
   const addReply = async (ticketId: number, content: string) => {
@@ -602,6 +721,25 @@ export default function AdminPage() {
                   Destek Talepleri
                   {tickets.filter(t => t.status === 'open').length > 0 && (
                     <span className="admin-nav__badge">{tickets.filter(t => t.status === 'open').length}</span>
+                  )}
+                </button>
+              )}
+              {canViewApplications() && (
+                <button
+                  type="button"
+                  className={`admin-nav__item ${activeTab === 'applications' ? 'admin-nav__item--active' : ''}`}
+                  onClick={() => setActiveTab('applications')}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <polyline points="10 9 9 9 8 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  Yetkili Başvuruları
+                  {applications.filter(a => a.status === 'pending').length > 0 && (
+                    <span className="admin-nav__badge">{applications.filter(a => a.status === 'pending').length}</span>
                   )}
                 </button>
               )}
@@ -1309,6 +1447,214 @@ export default function AdminPage() {
                         </button>
                         <button 
                           onClick={() => deleteTicket(deleteTicketModal.id)}
+                          className="btn btn--danger"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginRight: '0.5rem' }}>
+                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Evet, Kalıcı Olarak Sil
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {activeTab === 'applications' && canViewApplications() && (
+              <section className="admin-section">
+                <div className="admin-section__header">
+                  <h2 className="admin-section__title">Yetkili Başvuruları</h2>
+                  <div className="admin-stats">
+                    <span className="stat-badge stat-badge--pending">Beklemede: {applications.filter(a => a.status === 'pending').length}</span>
+                    <span className="stat-badge stat-badge--reviewing">İnceleniyor: {applications.filter(a => a.status === 'reviewing').length}</span>
+                    <span className="stat-badge stat-badge--accepted">Kabul: {applications.filter(a => a.status === 'accepted').length}</span>
+                    <span className="stat-badge stat-badge--rejected">Reddedildi: {applications.filter(a => a.status === 'rejected').length}</span>
+                    <span className="stat-badge stat-badge--total">Toplam: {applications.length}</span>
+                  </div>
+                </div>
+
+                <div className="admin-filters">
+                  <select className="admin-select" value={appStatusFilter} onChange={e => setAppStatusFilter(e.target.value)}>
+                    <option value="">Tüm Durumlar</option>
+                    <option value="pending">Beklemede</option>
+                    <option value="reviewing">İnceleniyor</option>
+                    <option value="accepted">Kabul Edildi</option>
+                    <option value="rejected">Reddedildi</option>
+                  </select>
+                </div>
+
+                <div className="table-responsive">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th><th>Kullanıcı</th><th>Pozisyon</th><th>Yaş</th><th>Durum</th><th>Tarih</th><th>İşlemler</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(() => {
+                        const filtered = applications.filter(a => !appStatusFilter || a.status === appStatusFilter);
+                        if (filtered.length === 0) return (<tr><td colSpan={7} className="empty-table">Başvuru bulunamadı.</td></tr>);
+                        return filtered.map(app => (
+                          <tr key={app.id}>
+                            <td>#{app.id}</td>
+                            <td className="user-cell">
+                              <div className="user-avatar">
+                                <img src={`/mcavatar?username=${encodeURIComponent(app.name)}`} alt="" width={32} height={32} />
+                              </div>
+                              {app.name}
+                            </td>
+                            <td>{app.position}</td>
+                            <td>{app.age || '-'}</td>
+                            <td>{getAppStatusBadge(app.status)}</td>
+                            <td>{app.createdAt ? new Date(app.createdAt).toLocaleDateString('tr-TR') : '-'}</td>
+                            <td>
+                              <div className="admin-actions">
+                                <button onClick={() => setSelectedApplication(app)} className="btn btn--ghost btn--xs" title="Görüntüle">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/></svg>
+                                </button>
+                                {app.status === 'pending' && (
+                                  <button onClick={() => updateApplicationStatus(app.id, 'reviewing')} className="btn btn--secondary btn--xs" title="İncelemeye Al">İncele</button>
+                                )}
+                                {app.status !== 'accepted' && (
+                                  <button onClick={() => updateApplicationStatus(app.id, 'accepted')} className="btn btn--success btn--xs" title="Kabul Et">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  </button>
+                                )}
+                                {app.status !== 'rejected' && (
+                                  <button onClick={() => updateApplicationStatus(app.id, 'rejected')} className="btn btn--danger btn--xs" title="Reddet">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                                  </button>
+                                )}
+                                {user?.rank === 'Kurucu' && (
+                                  <button onClick={() => setDeleteAppModal(app)} className="btn btn--danger btn--xs" title="Sil">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ));
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+
+                {selectedApplication && (
+                  <div className="modal-overlay" onClick={() => { setSelectedApplication(null); setAppReplyText(''); }}>
+                    <div className="modal modal--large" onClick={e => e.stopPropagation()}>
+                      <div className="modal__header">
+                        <h3 className="modal__title">Başvuru #{selectedApplication.id}</h3>
+                        <button onClick={() => { setSelectedApplication(null); setAppReplyText(''); }} className="modal__close">×</button>
+                      </div>
+                      <div className="modal__body">
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                          <div><strong>Kullanıcı:</strong> {selectedApplication.name}</div>
+                          <div><strong>İsim Soyisim:</strong> {(selectedApplication.firstName || selectedApplication.first_name || '-') + ' ' + (selectedApplication.lastName || selectedApplication.last_name || '')}</div>
+                          <div><strong>Email:</strong> {selectedApplication.email}</div>
+                          <div><strong>Pozisyon:</strong> {selectedApplication.position}</div>
+                          <div><strong>Discord:</strong> {selectedApplication.discord || '-'}</div>
+                          <div><strong>Yaş:</strong> {selectedApplication.age || '-'}</div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--silver-400)', marginBottom: '0.5rem' }}>Deneyim</div>
+                            <div className="admin-answer-box" style={{ whiteSpace: 'pre-wrap' }}>{selectedApplication.experience}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--silver-400)', marginBottom: '0.5rem' }}>Neden Sen?</div>
+                            <div className="admin-answer-box" style={{ whiteSpace: 'pre-wrap' }}>{selectedApplication.why}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--silver-400)', marginBottom: '0.5rem' }}>Aktiflik</div>
+                            <div className="admin-answer-box" style={{ whiteSpace: 'pre-wrap' }}>{selectedApplication.availability}</div>
+                          </div>
+                          {selectedApplication.about && (
+                            <div>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--silver-400)', marginBottom: '0.5rem' }}>Hakkında</div>
+                              <div className="admin-answer-box" style={{ whiteSpace: 'pre-wrap' }}>{selectedApplication.about}</div>
+                            </div>
+                          )}
+                        </div>
+                        {selectedApplication.comments && selectedApplication.comments.length > 0 && (
+                          <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+                            <strong>Yorumlar:</strong>
+                            <div style={{ marginTop: '0.5rem' }}>
+                              {selectedApplication.comments.map((c: any) => (
+                                <div key={c.id} style={{ padding: '0.5rem', background: 'var(--surface)', borderRadius: '6px', marginBottom: '0.5rem' }}>
+                                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                    {c.author} {c.authorRank && `(${c.authorRank})`} • {new Date(c.createdAt).toLocaleString('tr-TR')}
+                                  </div>
+                                  <p style={{ marginTop: '0.25rem', color: 'var(--text)' }}>{c.content}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="modal__footer" style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
+                        <textarea
+                          className="chat-reply__input"
+                          placeholder="Yorum yaz..."
+                          value={appReplyText}
+                          onChange={e => setAppReplyText(e.target.value)}
+                          rows={2}
+                        />
+                        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                          <button onClick={() => { setSelectedApplication(null); setAppReplyText(''); }} className="btn btn--ghost">Kapat</button>
+                          <button
+                            onClick={() => { addApplicationComment(selectedApplication.id, appReplyText); setAppReplyText(''); }}
+                            disabled={!appReplyText.trim()}
+                            className="btn btn--primary"
+                          >Yorum Ekle</button>
+                          {selectedApplication.status === 'pending' && (
+                            <button onClick={() => updateApplicationStatus(selectedApplication.id, 'reviewing')} className="btn btn--secondary">İncelemeye Al</button>
+                          )}
+                          <button onClick={() => updateApplicationStatus(selectedApplication.id, 'accepted')} className="btn btn--success">Kabul Et</button>
+                          <button onClick={() => updateApplicationStatus(selectedApplication.id, 'rejected')} className="btn btn--danger">Reddet</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Başvuru Silme Onay Modalı (sadece Kurucu) */}
+                {deleteAppModal && (
+                  <div className="modal-overlay" onClick={() => setDeleteAppModal(null)}>
+                    <div className="modal" onClick={e => e.stopPropagation()}>
+                      <div className="modal__header">
+                        <h3 className="modal__title" style={{ color: 'var(--danger)' }}>⚠️ Başvuruyu Sil</h3>
+                        <button onClick={() => setDeleteAppModal(null)} className="modal__close">×</button>
+                      </div>
+                      <div className="modal__body" style={{ padding: '1.5rem' }}>
+                        <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+                          <strong>#{deleteAppModal.id}</strong> numaralı başvuruyu <strong style={{ color: 'var(--danger)' }}>kalıcı olarak silmek</strong> istediğinize emin misiniz?
+                        </p>
+                        <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                          Kullanıcı: <strong>{deleteAppModal.name}</strong><br/>
+                          Pozisyon: <strong>{deleteAppModal.position}</strong><br/>
+                          Email: <strong>{deleteAppModal.email}</strong>
+                        </p>
+                        <div style={{
+                          padding: '0.75rem',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          borderRadius: '6px',
+                          border: '1px solid var(--danger)',
+                          fontSize: '0.85rem',
+                          color: 'var(--danger)'
+                        }}>
+                          <strong>UYARI:</strong> Bu işlem geri alınamaz! Başvuru ve tüm yorumları kalıcı olarak silinecektir.
+                        </div>
+                      </div>
+                      <div className="modal__footer" style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                        <button
+                          onClick={() => setDeleteAppModal(null)}
+                          className="btn btn--ghost"
+                        >
+                          İptal
+                        </button>
+                        <button
+                          onClick={() => deleteApplication(deleteAppModal.id)}
                           className="btn btn--danger"
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginRight: '0.5rem' }}>

@@ -32,9 +32,17 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // Yetkili başvuru sayfası: giriş yapılmamışsa auth sayfasına yönlendir
+  if (pathname.startsWith('/basvuru')) {
+    const session = req.cookies.get('averneth_session')?.value;
+    if (!session) {
+      return NextResponse.redirect(new URL('/auth', req.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/mcavatar', '/mcavatar/'],
+  matcher: ['/mcavatar', '/mcavatar/', '/basvuru', '/basvuru/'],
 };

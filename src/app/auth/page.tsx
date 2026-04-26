@@ -359,7 +359,7 @@ const loadMinecraftAvatar = (username: string) => {
                 <li><a className="nav__link" href="/#forum">Forum</a></li>
                 <li><Link className="nav__link" href="/wiki">Wiki</Link></li>
                 <li><Link className="nav__link" href="/destek">Destek</Link></li>
-                <li><a className="nav__link" href="/#yetkili-basvuru">Yetkili Başvuru</a></li>
+                <li><Link className="nav__link" href="/basvuru">Yetkili Başvuru</Link></li>
               </ul>
             </nav>
             <div className="topbar__actions wiki-top-actions">

@@ -1,15 +1,9 @@
-const isEnabled = process.env.DEBUG === 'true' || process.env.NEXT_PUBLIC_DEBUG === 'true';
+const isEnabled = false;
 
 export const debug = {
-  log: (...args: any[]) => {
-    if (isEnabled) console.log(...args);
-  },
-  warn: (...args: any[]) => {
-    if (isEnabled) console.warn(...args);
-  },
-  error: (...args: any[]) => {
-    if (isEnabled) console.error(...args);
-  },
+  log: (..._args: any[]) => {},
+  warn: (..._args: any[]) => {},
+  error: (..._args: any[]) => {},
 };
 
 export default debug;

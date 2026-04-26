@@ -1,0 +1,460 @@
+/* BASVURU SAYFASI — dark epic fantasy (navy, purple, silver) */
+
+.basvuru-page {
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+/* Hero */
+.basvuru-hero {
+  padding: 5rem 0 2.5rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.basvuru-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--silver-100);
+  margin: 0 0 0.75rem;
+  text-shadow: 0 0 40px rgba(124, 58, 237, 0.3);
+}
+
+.basvuru-hero__subtitle {
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 48ch;
+  margin-inline: auto;
+}
+
+/* Layout */
+.basvuru-layout {
+  padding-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Card */
+.basvuru-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.basvuru-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.08);
+}
+
+/* Form */
+.basvuru-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.basvuru-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .basvuru-form__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.basvuru-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.basvuru-form__label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--silver-400);
+}
+
+.basvuru-form__label span.required {
+  color: #f87171;
+  margin-left: 0.25rem;
+}
+
+.basvuru-form__input,
+.basvuru-form__textarea {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--silver-100);
+  font-family: inherit;
+  font-size: 0.92rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.basvuru-form__input::placeholder,
+.basvuru-form__textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.basvuru-form__input:focus,
+.basvuru-form__textarea:focus {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.basvuru-form__textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Position Select Grid */
+.basvuru-positions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .basvuru-positions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .basvuru-positions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.basvuru-position {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.basvuru-position:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.1);
+  transform: translateY(-1px);
+}
+
+.basvuru-position.is-selected {
+  border-color: var(--purple-500);
+  background: rgba(124, 58, 237, 0.1);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+}
+
+.basvuru-position__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--silver-100);
+}
+
+.basvuru-position__desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Alert */
+.basvuru-alert {
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1.1rem;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid transparent;
+}
+
+.basvuru-alert--error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+.basvuru-alert--success {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.25);
+  color: #86efac;
+}
+
+/* Submit button */
+.basvuru-submit {
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(160deg, var(--purple-500), var(--purple-700));
+  color: white;
+  box-shadow: 0 4px 24px rgba(91, 33, 182, 0.4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.basvuru-submit:hover {
+  box-shadow: 0 6px 32px rgba(124, 58, 237, 0.5);
+  transform: translateY(-1px);
+}
+
+.basvuru-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* History */
+.basvuru-history__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.basvuru-history__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--silver-100);
+  margin: 0;
+}
+
+.basvuru-history__toggle {
+  background: none;
+  border: none;
+  color: var(--purple-300);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease;
+}
+
+.basvuru-history__toggle:hover {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+/* Application item */
+.basvuru-app {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s ease;
+}
+
+.basvuru-app:hover {
+  border-color: var(--border-strong);
+}
+
+.basvuru-app__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.basvuru-app__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.basvuru-app__position {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--silver-100);
+}
+
+.basvuru-app__date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.basvuru-app__comments {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.basvuru-app__comment {
+  padding: 0.5rem 0;
+}
+
+.basvuru-app__comment + .basvuru-app__comment {
+  border-top: 1px solid var(--border);
+}
+
+.basvuru-app__comment-author {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--purple-300);
+}
+
+.basvuru-app__comment-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: 0.4rem;
+}
+
+.basvuru-app__comment-text {
+  font-size: 0.88rem;
+  color: var(--text);
+  margin-top: 0.2rem;
+}
+
+/* Status badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.badge--pending {
+  background: rgba(234, 179, 8, 0.12);
+  color: #facc15;
+  border-color: rgba(234, 179, 8, 0.25);
+}
+
+.badge--reviewing {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.badge--accepted {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+.badge--rejected {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Login CTA */
+.basvuru-cta {
+  text-align: center;
+  padding: 2.5rem;
+}
+
+.basvuru-cta__text {
+  color: var(--silver-400);
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+}
+
+/* Loading */
+.basvuru-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.basvuru-loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--purple-500);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Application detail toggle & boxes */
+.basvuru-app__detail-toggle {
+  margin-top: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--silver-400);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.basvuru-app__detail-toggle:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: var(--purple-300);
+}
+
+.basvuru-app__details {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.basvuru-app__detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .basvuru-app__detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.basvuru-app__detail-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--silver-400);
+  margin-bottom: 0.35rem;
+}
+
+.basvuru-app__detail-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
+  color: var(--silver-300);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-height: 140px;
+  overflow-y: auto;
+}
