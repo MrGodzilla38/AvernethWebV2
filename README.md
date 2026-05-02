@@ -70,7 +70,7 @@ node --version
 npm --version
 ```
 
-### Adım 2: MySQL Veritabanı Kurulumu
+### Adım 2: MySQL Veritabanı Kurulumu (Cihazınızda zaten kuruluysa bu adımı geçin.)
 
 **Windows için:**
 1. [MySQL Community Server](https://dev.mysql.com/downloads/mysql/) indirin
