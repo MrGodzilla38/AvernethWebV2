@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import { rateLimit, clientIp, MC_USER, PASS_MIN, PASS_MAX, EMAIL_MAX, EMAIL_OK } from '@/lib/utils';
-import { requireJwtSecret, generateToken, setAuthCookie, BCRYPT_ROUNDS } from '@/lib/auth';
+import { requireJwtSecret, generateToken, JWT_EXPIRES_DAYS, BCRYPT_ROUNDS } from '@/lib/auth';
 import { debug } from '@/lib/debug';
 
 export async function POST(req: NextRequest) {
@@ -77,13 +77,16 @@ export async function POST(req: NextRequest) {
     );
 
     const token = generateToken(username);
+    const maxAge = JWT_EXPIRES_DAYS * 24 * 60 * 60;
     const response = NextResponse.json({
       ok: true,
       message: "Kayıt tamamlandı. Aynı şifre ile oyunda /login kullanabilirsiniz.",
       username: username,
     });
-
-    setAuthCookie(response, token);
+    
+    response.headers.set('Set-Cookie', 
+      `averneth_session=${token}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax`
+    );
     return response;
   } catch (err) {
     debug.error(err);

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import { requireJwtSecret, JWT_SECRET } from '@/lib/auth';
@@ -11,7 +10,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: jwtCheck.error }, { status: 503 });
   }
 
-  const raw = cookies().get('averneth_session')?.value;
+  const raw = req.cookies.get('averneth_session')?.value;
   debug.log('DEBUG: Cookie value:', raw ? raw.substring(0, 20) + '...' : 'NOT_FOUND');
   if (!raw) return NextResponse.json({ ok: true, loggedIn: false });
   
