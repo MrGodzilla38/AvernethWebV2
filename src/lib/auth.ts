@@ -86,15 +86,28 @@ function isSecureRequest(req: any): boolean {
 }
 
 export function setAuthCookie(response: any, token: string, req?: any) {
-  const maxAge = JWT_EXPIRES_DAYS * 24 * 60 * 60;
-  const cookieString = `averneth_session=${token}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
-  debug.log('DEBUG: Setting cookie:', cookieString.substring(0, 50) + '...');
-  response.headers.set('Set-Cookie', cookieString);
+  response.cookies.set({
+    name: "averneth_session",
+    value: token,
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: JWT_EXPIRES_DAYS * 24 * 60 * 60,
+    path: "/",
+  });
+  debug.log('DEBUG: Cookie set, headers:', response.headers.get('Set-Cookie'));
 }
 
 export function clearAuthCookie(response: any, req?: any) {
-  const cookieString = `averneth_session=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax`;
-  response.headers.set('Set-Cookie', cookieString);
+  response.cookies.set({
+    name: "averneth_session",
+    value: "",
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
 }
 
 export { BCRYPT_ROUNDS, JWT_SECRET, JWT_EXPIRES_DAYS, normalizeRank };
