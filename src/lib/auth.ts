@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { NextRequest } from 'next/server';
 import { getPool, TABLE, C, q } from './db';
 import { normalizeRank } from './utils';
+import { debug } from './debug';
 
 const BCRYPT_ROUNDS = Math.min(31, Math.max(4, Number(process.env.BCRYPT_ROUNDS) || 10));
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -68,10 +69,20 @@ export function generateToken(username: string): string {
 
 function isSecureRequest(req: any): boolean {
   const forwardedProto = req.headers?.get?.('x-forwarded-proto');
-  if (forwardedProto) return forwardedProto === 'https';
-  const url = req.nextUrl;
-  if (url) return url.protocol === 'https:';
-  return false;
+  debug.log('DEBUG: x-forwarded-proto:', forwardedProto);
+  if (forwardedProto) {
+    const isSecure = forwardedProto === 'https';
+    debug.log('DEBUG: Using forwarded proto, secure:', isSecure);
+    return isSecure;
+  }
+  try {
+    const url = new URL(req.url);
+    debug.log('DEBUG: req.url:', req.url, 'protocol:', url.protocol);
+    return url.protocol === 'https:';
+  } catch {
+    debug.log('DEBUG: Failed to parse req.url');
+    return false;
+  }
 }
 
 export function setAuthCookie(response: any, token: string, req?: any) {
