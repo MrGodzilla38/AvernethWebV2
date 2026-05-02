@@ -62,16 +62,16 @@ export async function POST(req: NextRequest) {
 
     const token = generateToken(username);
     debug.log('DEBUG: Generated token:', token.substring(0, 20) + '...');
-    
+
     const response = NextResponse.json({
       ok: true,
       message: "Giriş başarılı.",
       username: username,
-      token: token, // Token'ü frontend'e gönder
+      token: token,
     });
-    
-    setAuthCookie(response, token);
-    debug.log('DEBUG: Cookie set in response');
+
+    setAuthCookie(response, token, req);
+    debug.log('DEBUG: Cookie set in response, secure:', req.headers.get('x-forwarded-proto') === 'https' || req.nextUrl.protocol === 'https:');
     return response;
   } catch (err) {
     debug.error('Login error:', err);

@@ -82,8 +82,8 @@ export async function POST(req: NextRequest) {
       message: "Kayıt tamamlandı. Aynı şifre ile oyunda /login kullanabilirsiniz.",
       username: username,
     });
-    
-    setAuthCookie(response, token);
+
+    setAuthCookie(response, token, req);
     return response;
   } catch (err) {
     debug.error(err);

@@ -66,20 +66,30 @@ export function generateToken(username: string): string {
   });
 }
 
-export function setAuthCookie(response: any, token: string) {
+function isSecureRequest(req: any): boolean {
+  const forwardedProto = req.headers?.get?.('x-forwarded-proto');
+  if (forwardedProto) return forwardedProto === 'https';
+  const url = req.nextUrl;
+  if (url) return url.protocol === 'https:';
+  return false;
+}
+
+export function setAuthCookie(response: any, token: string, req?: any) {
+  const secure = req ? isSecureRequest(req) : false;
   response.cookies.set("averneth_session", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
     sameSite: "lax",
     maxAge: JWT_EXPIRES_DAYS * 24 * 60 * 60,
     path: "/",
   });
 }
 
-export function clearAuthCookie(response: any) {
+export function clearAuthCookie(response: any, req?: any) {
+  const secure = req ? isSecureRequest(req) : false;
   response.cookies.set("averneth_session", "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
     sameSite: "lax",
     maxAge: 0,
     path: "/",
