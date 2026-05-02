@@ -70,8 +70,8 @@ export async function POST(req: NextRequest) {
       token: token,
     });
 
-    setAuthCookie(response, token, req);
-    debug.log('DEBUG: Cookie set in response, secure:', req.headers.get('x-forwarded-proto') === 'https' || req.nextUrl.protocol === 'https:');
+    setAuthCookie(response, token);
+    debug.log('DEBUG: Set-Cookie header:', response.headers.get('Set-Cookie'));
     return response;
   } catch (err) {
     debug.error('Login error:', err);

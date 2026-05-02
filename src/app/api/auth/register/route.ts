@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       username: username,
     });
 
-    setAuthCookie(response, token, req);
+    setAuthCookie(response, token);
     return response;
   } catch (err) {
     debug.error(err);
