@@ -24,7 +24,7 @@ Averneth gaming platform için modern Next.js frontend, MySQL kimlik doğrulama,
 - **İşletim Sistemi**: Windows 10+, macOS 10.15+, Ubuntu 18.04+ veya benzeri Linux dağıtımları
 - **Node.js**: Sürüm 18.0 veya üstü (LTS sürümü önerilir)
 - **npm**: Sürüm 8.0 veya üstü (Node.js ile birlikte gelir)
-- **MySQL**: Sürüm 5.7+ veya 8.0+
+- **MySQL/MariaDB**: MySQL 5.7+ / 8.0+ veya MariaDB 10.11+ (Ubuntu 24.04'te MariaDB varsayılan)
 - **RAM**: Minimum 2GB, önerilen 4GB+
 - **Depolama**: Minimum 1GB boş alan
 
@@ -97,12 +97,25 @@ sudo systemctl start mysql
 sudo systemctl enable mysql
 ```
 
+> **⚠️ Ubuntu 24.04 + MariaDB 10.11 Notu:** MariaDB 10.11'de `root` kullanıcısı varsayılan olarak `unix_socket` kimlik doğrulama ile gelir. Bu, `mysql -u root -p` çalışmayacağı anlamına gelir. Bunun yerine:
+> ```bash
+> # Root olarak giriş (şifre sormaz)
+> sudo mysql
+> 
+> # Veya sudo ile şifreli giriş
+> sudo mysql -u root
+> ```
+
 ### Adım 3: Veritabanı ve Tablo Oluşturma
 
 1. **MySQL'e root kullanıcı olarak giriş yapın:**
 ```bash
+# Standart MySQL için:
 mysql -u root -p
 # Şifrenizi girin
+
+# Ubuntu 24.04 + MariaDB 10.11 için:
+sudo mysql
 ```
 
 2. **Veritabanı oluşturun:**
@@ -117,6 +130,10 @@ CREATE USER 'averneth'@'localhost' IDENTIFIED BY 'guvenli_sifre';
 GRANT ALL PRIVILEGES ON nLogin.* TO 'averneth'@'localhost';
 FLUSH PRIVILEGES;
 ```
+
+> **⚠️ Önemli Notlar:**
+> - **localhost vs 127.0.0.1:** MySQL'de `localhost` ve `127.0.0.1` farklı host olarak değerlendirilir. `.env.local`'de `MYSQL_HOST=127.0.0.1` kullanıyorsanız, kullanıcıyı `'kullanici'@'127.0.0.1'` olarak da oluşturmanız gerekir. Veya her ikisinden de erişim için `'kullanici'@'%'` kullanın.
+> - **bind-address ayarı:** MariaDB/MySQL varsayılan olarak sadece localhost bağlantıları kabul eder. Uzak bağlantılar için `bind-address` ayarını değiştirmeniz gerekir (aşağıdaki sorun giderme bölümüne bakın).
 
 4. **nLogin tablosunu oluşturun:**
 ```sql
@@ -260,6 +277,13 @@ npm install
 yarn install
 ```
 
+> **Not:** Kurulum sırasında `deprecated` veya `vulnerabilities` uyarıları görebilirsiniz. Bu uyarılar genellikle bağımlılıkların eski versiyonlarından kaynaklanır. Uygulama çalışmaya devam edecektir. Güvenlik açıklarını gidermek için:
+> ```bash
+> npm audit fix
+> # VEYA (kırıcı değişiklikler varsa)
+> npm audit fix --force
+> ```
+
 4. **Kurulumu doğrulayın:**
 ```bash
 # node_modules klasörünün oluştuğunu kontrol edin
@@ -334,6 +358,10 @@ NODE_ENV=development
 # MySQL'e bağlanmayı deneyin
 mysql -h 127.0.0.1 -P 3306 -u root -p nLogin
 # Şifrenizi girin ve "Welcome to the MySQL monitor" mesajını görün
+
+# Not: Eğer "Access denied" hatası alırsanız:
+# - Kullanıcıyı '%' host ile oluşturduysanız: mysql -h 127.0.0.1 -u kullanici -p
+# - MariaDB 10.11 için: sudo mysql
 ```
 
 2. **Tablo varlığını kontrol edin:**
@@ -750,17 +778,62 @@ sudo mysql_secure_installation
 # Windows: Services'de MySQL servisini yeniden başlat
 # Linux: sudo systemctl restart mysql
 # macOS: brew services restart mysql
+
+# Çözüm 3: Ubuntu 24.04 + MariaDB 10.11 için (unix_socket auth)
+# Root kullanıcısı şifre yerine unix_socket ile kimlik doğrulama kullanır
+sudo mysql
+# MariaDB içinde root şifresi ayarla:
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'yeni_sifre';
+FLUSH PRIVILEGES;
+```
+
+**❌ "Access denied for user 'kullanici'@'localhost' (using password: NO/YES)" Hatası**
+```bash
+# Sorun: localhost ve 127.0.0.1 farklı host olarak değerlendirilir
+# Çözüm: Her iki host için de kullanıcı oluşturun veya '%' kullanın
+
+sudo mysql
+CREATE USER 'kullanici'@'%' IDENTIFIED BY 'sifre';
+GRANT ALL PRIVILEGES ON nLogin.* TO 'kullanici'@'%';
+FLUSH PRIVILEGES;
+```
+
+**❌ "Can't connect to server on 'IP_ADDRESS' (115)" Hatası**
+```bash
+# Sorun: MariaDB/MySQL sadece localhost bağlantılarını kabul ediyor (bind-address)
+# Çözüm: bind-address ayarını değiştirin
+
+# 1. MariaDB konfigürasyon dosyasını bulun
+sudo find /etc/mysql -name "*.cnf" | xargs grep -l "bind-address"
+# Çıktı: /etc/mysql/mariadb.conf.d/50-server.cnf (Ubuntu 24.04 + MariaDB)
+
+# 2. Konfigürasyon dosyasını düzenleyin
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+# bind-address satırını bulun ve şu şekilde değiştirin:
+# bind-address = 0.0.0.0    # Tüm IP'lerden bağlantıya izin ver
+# VEYA
+# bind-address = 127.0.0.1    # Sadece localhost
+
+# 3. MariaDB'yi yeniden başlatın
+sudo systemctl restart mariadb
 ```
 
 **❌ "Can't connect to MySQL server" Hatası**
 ```bash
-# MySQL servisinin çalıştığını kontrol et
+# MySQL/MariaDB servisinin çalıştığını kontrol et
 # Windows: net start mysql
-# Linux: sudo systemctl status mysql
+# Linux (MySQL): sudo systemctl status mysql
+# Linux (MariaDB/Ubuntu 24.04): sudo systemctl status mariadb
 # macOS: brew services list | grep mysql
+
+# Servisi başlat (gerekirse)
+# Linux (MySQL): sudo systemctl start mysql
+# Linux (MariaDB): sudo systemctl start mariadb
 
 # MySQL portunu kontrol et
 netstat -an | grep 3306
+# VEYA
+ss -tlnp | grep 3306
 ```
 
 **❌ "npm install fails with permissions" Hatası**
@@ -793,13 +866,19 @@ npm run dev -- -p 5001
 **❌ "Database connection failed" Hatası**
 ```bash
 # Kontrol listesi:
-# 1. MySQL servisinin çalıştığından emin olun
+# 1. MySQL/MariaDB servisinin çalıştığından emin olun
+#    sudo systemctl status mariadb  # Ubuntu 24.04
 # 2. .env.local dosyasındaki bilgilerin doğru olduğundan emin olun
-# 3. Veritabanı ve tablonun oluşturulduğundan emin olun
-# 4. MySQL kullanıcısının yetkilerinin olduğundan emin olun
+# 3. MYSQL_HOST=localhost vs 127.0.0.1 - kullanıcı oluştururken kullandığınız host ile aynı olmalı
+# 4. Veritabanı ve tablonun oluşturulduğundan emin olun
+# 5. MySQL kullanıcısının yetkilerinin olduğundan emin olun
+#    SHOW GRANTS FOR 'kullanici'@'localhost';
+# 6. bind-address ayarı uzaktan bağlantıyı engelliyor olabilir
 
 # Test için manuel bağlantı
-mysql -h 127.0.0.1 -P 3306 -u root -p nLogin
+mysql -h 127.0.0.1 -P 3306 -u kullanici -p nLogin
+# VEYA localhost ile
+mysql -h localhost -u kullanici -p nLogin
 ```
 
 ### Geliştirme Sorunları
