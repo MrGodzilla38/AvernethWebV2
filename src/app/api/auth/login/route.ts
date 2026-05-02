@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import bcrypt from 'bcrypt';
 import { getPool, TABLE, C, q } from '@/lib/db';
 import { rateLimit, clientIp, MC_USER } from '@/lib/utils';
-import { requireJwtSecret, generateToken, setAuthCookie } from '@/lib/auth';
+import { requireJwtSecret, generateToken, JWT_EXPIRES_DAYS } from '@/lib/auth';
 import { debug } from '@/lib/debug';
 
 export async function POST(req: NextRequest) {
@@ -63,16 +64,21 @@ export async function POST(req: NextRequest) {
     const token = generateToken(username);
     debug.log('DEBUG: Generated token:', token.substring(0, 20) + '...');
 
-    const response = NextResponse.json({
+    cookies().set('averneth_session', token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: JWT_EXPIRES_DAYS * 24 * 60 * 60,
+      path: '/',
+    });
+    debug.log('DEBUG: Cookie set via next/headers');
+
+    return NextResponse.json({
       ok: true,
       message: "Giriş başarılı.",
       username: username,
       token: token,
     });
-
-    setAuthCookie(response, token);
-    debug.log('DEBUG: Set-Cookie header:', response.headers.get('Set-Cookie'));
-    return response;
   } catch (err) {
     debug.error('Login error:', err);
     return NextResponse.json({ ok: false, error: "Veritabanı hatası. Yapılandırmayı kontrol edin." }, { status: 500 });

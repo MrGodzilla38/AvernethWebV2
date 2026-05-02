@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { clearAuthCookie } from '@/lib/auth';
+import { cookies } from 'next/headers';
 
 export async function POST(req: NextRequest) {
-  const response = NextResponse.json({ ok: true });
-  clearAuthCookie(response);
-  return response;
+  cookies().delete('averneth_session');
+  return NextResponse.json({ ok: true });
 }
